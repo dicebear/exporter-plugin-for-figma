@@ -1,0 +1,100 @@
+{{#if isDicebearNamespace}}
+<h1 align="center"><img src="https://dicebear.com/logo-readme.svg" width="96" /> <br />DiceBear {{title}}</h1>
+{{else}}
+<h1 align="center"><img src="./tests/svg/0.svg" width="96" /> <br />{{title}}</h1>
+{{/if}}
+<p align="center">
+  <strong>Avatar Style for <a href="https://dicebear.com/">DiceBear</a></strong><br />
+  <a href="{{source}}">{{sourceTitle}}</a> by <a href="{{homepage}}">{{creator}}</a>
+</p>
+
+{{#if isDicebearNamespace}}
+<p align="center">
+  <img src="https://api.dicebear.com/5.x/{{packageNameLastPart}}/svg?seed=Mimi" width="64" />
+  <img src="https://api.dicebear.com/5.x/{{packageNameLastPart}}/svg?seed=Sasha" width="64" />
+  <img src="https://api.dicebear.com/5.x/{{packageNameLastPart}}/svg?seed=Lilly" width="64" />
+  <img src="https://api.dicebear.com/5.x/{{packageNameLastPart}}/svg?seed=Tigger" width="64" />
+  <img src="https://api.dicebear.com/5.x/{{packageNameLastPart}}/svg?seed=Bella" width="64" />
+  <img src="https://api.dicebear.com/5.x/{{packageNameLastPart}}/svg?seed=Zoe" width="64" />
+  <img src="https://api.dicebear.com/5.x/{{packageNameLastPart}}/svg?seed=Kitty" width="64" />
+</p>
+{{/if}}
+
+<p align="center">
+  The avatar style is based on <a href="{{source}}">{{sourceTitle}}</a> by
+  <a href="{{homepage}}">{{creator}}</a>, licensed under
+  <a href="{{licenseUrl}}">{{licenseName}}</a>. / Remix of the original.
+</p>
+<p align="center">
+  See <a href="https://dicebear.com/licenses">license overview</a> for more information.
+</p>
+
+{{#if isDicebearNamespace}}
+<p align="center">
+  <a href="https://dicebear.com/styles/{{packageNameLastPart}}">
+    Read Documentation
+  </a>
+</p>
+{{else}}
+----
+
+## Usage
+
+Install the DiceBear package and this avatar style with the following command:
+
+```
+npm install @dicebear/core {{packageName}} --save
+```
+
+Now you can create your first avatar.
+
+```js
+import { createAvatar } from '@dicebear/core';
+import style from '{{packageName}}';
+
+let svg = createAvatar(style, {
+  // ... options
+});
+```
+
+## Options
+
+All options from [DiceBear](https://dicebear.com/docs/options) and additionally the following:
+
+{{#each properties}}
+### {{@key}}
+
+type: `{{this.type}}`  
+{{#isDefined this.minimum}}
+minimum: `{{this.minimum}}`  
+{{/isDefined}}
+{{#isDefined this.maximum}}
+maximum: `{{this.maximum}}`  
+{{/isDefined}}
+{{#if this.items.enum}}
+allowed: {{#each this.items.enum}}{{#if @key}}, {{/if}}`{{this}}`{{/each}}  
+{{/if}}
+{{#if this.items.[0].enum}}
+allowed: {{#each this.items.enum}}{{#if @key}}, {{/if}}`{{this}}`{{/each}} or an `hex color`  
+{{/if}}
+{{#if this.default.[0]}}
+default: `[{{#each this.default}}{{#if @key}}, {{/if}}'{{this}}'{{/each}}]`
+{{else}}
+default: `{{this.default}}`
+{{/if}}
+
+
+{{/each}}
+
+## Build this package
+
+```
+npm run build
+```
+
+## Test this package
+
+```
+npm run test
+```
+{{/if}}
