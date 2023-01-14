@@ -9,6 +9,7 @@
 
 import type { Prng } from '@dicebear/core';
 import type { Options, ColorPickCollection } from '../types.js';
+import { convertColor } from './convertColor.js';
 
 type Props = {
   prng: Prng,
@@ -19,7 +20,7 @@ export function getColors({ prng, options }: Props): ColorPickCollection {
   return {
     {{#each colors}}
     {{#if this.isUsedByComponents}}
-    '{{@key}}': prng.pick(options.{{@key}}Color ?? []) ?? 'transparent',
+    '{{@key}}': convertColor(prng.pick(options.{{@key}}Color ?? []) ?? 'transparent'),
     {{/if}}
     {{/each}}
   }

@@ -36,8 +36,12 @@ import { escape } from '@dicebear/core';
 import type { Options } from './types.js';
 import { getComponents } from './utils/getComponents.js';
 import { getColors } from './utils/getColors.js';
+{{#if hasPreCreateHook}}
 import { onPreCreate } from './hooks/onPreCreate.js';
+{{/if}}
+{{#if hasPostCreateHook}}
 import { onPostCreate } from './hooks/onPostCreate.js';
+{{/if}}
 
 export const meta: StyleMeta = {
   title: '{{{sourceTitle}}}',
@@ -61,13 +65,17 @@ export const meta: StyleMeta = {
 };
 
 export const create: StyleCreate<Options> = ({ prng, options }) => {
+{{#if hasPreCreateHook}}
   onPreCreate({ prng, options });
 
+{{/if}}
   const components = getComponents({ prng, options });
   const colors = getColors({ prng, options });
 
+{{#if hasPostCreateHook}}
   onPostCreate({ prng, options, components, colors });
 
+{{/if}}
   return {
     attributes: {
       viewBox: '0 0 {{size}} {{size}}',

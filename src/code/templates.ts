@@ -16,6 +16,7 @@ import srcComponentsNameTs from './templates/src/components/[name].ts.hbs';
 import srcUtilsGetColorsTs from './templates/src/utils/getColors.ts.hbs';
 import srcUtilsGetComponentsTs from './templates/src/utils/getComponents.ts.hbs';
 import srcUtilsPickComponentTs from './templates/src/utils/pickComponent.ts.hbs';
+import srcUtilsConvertColorTs from './templates/src/utils/convertColor.ts.hbs';
 import srcHooksOnPreCreateTs from './templates/src/hooks/onPreCreate.ts.hbs';
 import srcHooksOnPostCreateTs from './templates/src/hooks/onPostCreate.ts.hbs';
 
@@ -37,6 +38,7 @@ export const templates = {
   'src/utils/getColors.ts': srcUtilsGetColorsTs,
   'src/utils/getComponents.ts': srcUtilsGetComponentsTs,
   'src/utils/pickComponent.ts': srcUtilsPickComponentTs,
+  'src/utils/convertColor.ts': srcUtilsConvertColorTs,
   'src/hooks/onPreCreate.ts': srcHooksOnPreCreateTs,
   'src/hooks/onPostCreate.ts': srcHooksOnPostCreateTs,
 };

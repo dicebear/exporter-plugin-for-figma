@@ -8,6 +8,9 @@ export async function createExportFiles(exportData: Export) {
   const schema = createExportJsonSchema(exportData);
   const isMitLicensed = exportData.frame.settings.licenseName && exportData.frame.settings.licenseName === 'MIT';
 
+  const hasPreCreateHook = !!exportData.frame.settings.onPreCreateHook.trim();
+  const hasPostCreateHook = !!exportData.frame.settings.onPostCreateHook.trim();
+
   const files: Record<string, string> = {
     '.editorconfig': templates['.editorconfig'],
     '.gitignore': templates['.gitignore'],
@@ -64,6 +67,8 @@ export async function createExportFiles(exportData: Export) {
       size: (figma.getNodeById(exportData.frame.id) as FrameNode).width,
       body: await createTemplateString(exportData, figma.getNodeById(exportData.frame.id) as FrameNode),
       shapeRendering: exportData.frame.settings.shapeRendering,
+      hasPreCreateHook,
+      hasPostCreateHook,
     }),
     'src/types.ts': handlebars.compile(templates['src/types.ts'])({
       components: exportData.components,
@@ -91,15 +96,24 @@ export async function createExportFiles(exportData: Export) {
     'src/utils/pickComponent.ts': handlebars.compile(templates['src/utils/pickComponent.ts'])({
       fileShareUrl: exportData.frame.settings.fileShareUrl,
     }),
-    'src/hooks/onPreCreate.ts': handlebars.compile(templates['src/hooks/onPreCreate.ts'])({
-      content: exportData.frame.settings.onPreCreateHook.replace(/\n/g, '\n  '),
-      fileShareUrl: exportData.frame.settings.fileShareUrl,
-    }),
-    'src/hooks/onPostCreate.ts': handlebars.compile(templates['src/hooks/onPostCreate.ts'])({
-      content: exportData.frame.settings.onPostCreateHook.replace(/\n/g, '\n  '),
+    'src/utils/convertColor.ts': handlebars.compile(templates['src/utils/convertColor.ts'])({
       fileShareUrl: exportData.frame.settings.fileShareUrl,
     }),
   };
+
+  if (hasPreCreateHook) {
+    files['src/hooks/onPreCreate.ts'] = handlebars.compile(templates['src/hooks/onPreCreate.ts'])({
+      content: exportData.frame.settings.onPreCreateHook.trim().replace(/\n/g, '\n  '),
+      fileShareUrl: exportData.frame.settings.fileShareUrl,
+    });
+  }
+
+  if (hasPostCreateHook) {
+    files['src/hooks/onPostCreate.ts'] = handlebars.compile(templates['src/hooks/onPostCreate.ts'])({
+      content: exportData.frame.settings.onPostCreateHook.replace(/\n/g, '\n  '),
+      fileShareUrl: exportData.frame.settings.fileShareUrl,
+    });
+  }
 
   // Components
   const componentTemplate = handlebars.compile(templates['src/components/[name].ts']);
