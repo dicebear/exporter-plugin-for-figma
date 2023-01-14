@@ -45,7 +45,7 @@ export function createExportJsonSchema(exportData: Export): JSONSchema7 {
       type: 'array',
       items: {
         type: 'string',
-        pattern: '^[a-fA-F0-9]{6}$',
+        pattern: '^(transparent|[a-fA-F0-9]{6})$',
       },
       default: Object.values(colorGroup.collection).map((v) => v.value),
     };
