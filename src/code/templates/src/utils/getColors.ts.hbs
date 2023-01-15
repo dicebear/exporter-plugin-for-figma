@@ -20,7 +20,7 @@ export function getColors({ prng, options }: Props): ColorPickCollection {
   return {
     {{#each colors}}
     {{#if this.isUsedByComponents}}
-    '{{@key}}': convertColor(prng.pick(options.{{@key}}Color ?? []) ?? 'transparent'),
+    '{{@key}}': convertColor(prng.pick(options.{{@key}}Color ?? [], 'transparent')),
     {{/if}}
     {{/each}}
   }
