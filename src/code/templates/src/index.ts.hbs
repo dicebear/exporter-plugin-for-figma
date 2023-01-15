@@ -30,7 +30,7 @@
 {{/if}}
  */
 
-import type { StyleCreate, StyleMeta, StyleSchema } from '@dicebear/core';
+import type { StyleCreate, StyleMeta } from '@dicebear/core';
 import { escape } from '@dicebear/core';
 
 import type { Options } from './types.js';
@@ -91,7 +91,13 @@ export const create: StyleCreate<Options> = ({ prng, options }) => {
         },
         {}
       ),
-      ...colors,
+      ...Object.entries(colors).reduce<Record<string, string>>(
+        (acc, [key, value]) => {
+          acc[`${key}Color`] = value;
+          return acc;
+        },
+        {}
+      ),
     }),
   };
 };
