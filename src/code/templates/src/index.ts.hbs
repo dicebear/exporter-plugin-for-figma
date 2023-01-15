@@ -83,6 +83,16 @@ export const create: StyleCreate<Options> = ({ prng, options }) => {
       'shape-rendering': '{{shapeRendering}}'
     },
     body: {{{body}}},
+    extra: () => ({
+      ...Object.entries(components).reduce<Record<string, string | undefined>>(
+        (acc, [key, value]) => {
+          acc[key] = value?.name;
+          return acc;
+        },
+        {}
+      ),
+      ...colors,
+    }),
   };
 };
 
