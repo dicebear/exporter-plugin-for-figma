@@ -11,6 +11,11 @@ export async function createExportFiles(exportData: Export) {
   const hasPreCreateHook = !!exportData.frame.settings.onPreCreateHook.trim();
   const hasPostCreateHook = !!exportData.frame.settings.onPostCreateHook.trim();
 
+  const hasTransform =
+    Object.values(exportData.components).findIndex((v) => {
+      return v.settings.offsetX || v.settings.offsetY || v.settings.rotation;
+    }) >= 0;
+
   const files: Record<string, string> = {
     '.editorconfig': templates['.editorconfig'],
     '.gitignore': templates['.gitignore'],
@@ -75,6 +80,7 @@ export async function createExportFiles(exportData: Export) {
       colors: exportData.colors,
       backgroundColorGroupName: exportData.frame.settings.backgroundColorGroupName,
       fileShareUrl: exportData.frame.settings.fileShareUrl,
+      hasTransform,
     }),
     'src/schema.ts': handlebars.compile(templates['src/schema.ts'])({
       schema: JSON.stringify(schema, undefined, 2),
@@ -92,9 +98,12 @@ export async function createExportFiles(exportData: Export) {
     'src/utils/getComponents.ts': handlebars.compile(templates['src/utils/getComponents.ts'])({
       components: exportData.components,
       fileShareUrl: exportData.frame.settings.fileShareUrl,
+      hasTransform,
     }),
     'src/utils/pickComponent.ts': handlebars.compile(templates['src/utils/pickComponent.ts'])({
       fileShareUrl: exportData.frame.settings.fileShareUrl,
+      halfSize: (figma.getNodeById(exportData.frame.id) as FrameNode).width / 2,
+      hasTransform,
     }),
     'src/utils/convertColor.ts': handlebars.compile(templates['src/utils/convertColor.ts'])({
       fileShareUrl: exportData.frame.settings.fileShareUrl,

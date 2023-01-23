@@ -21,7 +21,24 @@ export function getComponents({ prng, options }: Props): ComponentPickCollection
   const {{@key}}Component = pickComponent({
     prng,
     group: '{{@key}}',
-    values: options.{{@key}}
+    values: options.{{@key}},
+    {{#if ../hasTransform}}
+    {{#if this.settings.rotation}}
+    rotation: options.{{@key}}Rotation?.length ? options.{{@key}}Rotation : [0],
+    {{else}}
+    rotation: [0],
+    {{/if}}
+    {{#if this.settings.offsetX}}
+    offsetX: options.{{@key}}OffsetX?.length ? options.{{@key}}OffsetX : [0],
+    {{else}}
+    offsetX: [0],
+    {{/if}}
+    {{#if this.settings.offsetY}}
+    offsetY: options.{{@key}}OffsetY?.length ? options.{{@key}}OffsetY : [0],
+    {{else}}
+    offsetY: [0],
+    {{/if}}
+    {{/if}}
   });
   {{/each}}
 

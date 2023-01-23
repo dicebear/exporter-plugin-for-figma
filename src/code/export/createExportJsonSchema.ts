@@ -31,6 +31,45 @@ export function createExportJsonSchema(exportData: Export): JSONSchema7 {
         default: componentGroup.settings.probability,
       };
     }
+
+    if (componentGroup.settings.rotation) {
+      schemaProperties[`${componentGroupName}Rotation`] = {
+        type: 'array',
+        items: {
+          type: 'integer',
+          minimum: componentGroup.settings.rotation * -1,
+          maximum: componentGroup.settings.rotation,
+        },
+        maxItems: 2,
+        default: [componentGroup.settings.rotation * -1, componentGroup.settings.rotation],
+      };
+    }
+
+    if (componentGroup.settings.offsetX) {
+      schemaProperties[`${componentGroupName}OffsetX`] = {
+        type: 'array',
+        items: {
+          type: 'integer',
+          minimum: componentGroup.settings.offsetX * -1,
+          maximum: componentGroup.settings.offsetX,
+        },
+        maxItems: 2,
+        default: [componentGroup.settings.offsetX * -1, componentGroup.settings.offsetX],
+      };
+    }
+
+    if (componentGroup.settings.offsetY) {
+      schemaProperties[`${componentGroupName}OffsetY`] = {
+        type: 'array',
+        items: {
+          type: 'integer',
+          minimum: componentGroup.settings.offsetY * -1,
+          maximum: componentGroup.settings.offsetY,
+        },
+        maxItems: 2,
+        default: [componentGroup.settings.offsetY * -1, componentGroup.settings.offsetY],
+      };
+    }
   }
 
   // Colors

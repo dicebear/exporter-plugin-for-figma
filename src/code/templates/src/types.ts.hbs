@@ -17,6 +17,15 @@ export interface Options {
   {{#isNotNull this.settings.probability.length}}
   {{@key}}Probability?: number;
   {{/isNotNull}}
+  {{#if this.settings.rotation}}
+  {{@key}}Rotation?: number[];
+  {{/if}}
+  {{#if this.settings.offsetX}}
+  {{@key}}OffsetX?: number[];
+  {{/if}}
+  {{#if this.settings.offsetY}}
+  {{@key}}OffsetY?: number[];
+  {{/if}}
   {{/each}}
   {{#each colors}}
   {{#if this.isUsedByComponents}}
@@ -41,5 +50,10 @@ export type ComponentPick =
   | {
       name: string;
       value: ComponentGroupItem;
+      {{#if hasTransform}}
+      rotation: number | undefined,
+      offsetX: number | undefined,
+      offsetY: number | undefined,
+      {{/if}}
     }
   | undefined;

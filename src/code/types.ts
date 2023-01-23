@@ -19,6 +19,9 @@ export type FrameSettings = {
 export type ComponentGroupSettings = {
   defaults: Record<string, boolean>;
   probability: number | null;
+  rotation: number | null;
+  offsetX: number | null;
+  offsetY: number | null;
 };
 
 export type ExportComponent = {

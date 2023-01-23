@@ -8,24 +8,62 @@
  */
 
 import type { Prng } from '@dicebear/core';
+{{#if hasTransform}}
+import type { ComponentGroupCollection, ComponentPickCollection, ColorPickCollection, ComponentPick } from '../types.js';
+{{else}}
 import type { ComponentGroupCollection, ComponentPick } from '../types.js';
+{{/if}}
 import * as components from '../components/index.js';
 
 type Props = {
   prng: Prng,
   group: string,
-  values?: string[]
+  values?: string[],
+  {{#if hasTransform}}
+  rotation: number[],
+  offsetX: number[],
+  offsetY: number[],
+  {{/if}}
 }
 
+{{#if hasTransform}}
+export function pickComponent({ prng, group, values = [], rotation, offsetX, offsetY}: Props): ComponentPick {
+{{else}}
 export function pickComponent({ prng, group, values = []}: Props): ComponentPick {
+{{/if}}
   const componentCollection: ComponentGroupCollection = components;
 
   const key = prng.pick(values);
 
+  {{#if hasTransform}}
+  const pickedRotation = prng.integer(Math.min(...rotation), Math.max(...rotation));
+  const pickedOffsetX = prng.integer(Math.min(...offsetX), Math.max(...offsetX));
+  const pickedOffsetY = prng.integer(Math.min(...offsetY), Math.max(...offsetY));
+
+  {{/if}}
   if (key && componentCollection[group][key]) {
     return {
       name: key,
+      {{#if hasTransform}}
+      value(
+        this: Exclude<ComponentPick, undefined>,
+        components: ComponentPickCollection,
+        colors: ColorPickCollection
+      ) {
+        let result = componentCollection[group][key](components, colors);
+
+        if (this.rotation || this.offsetX || this.offsetY) {
+          result = `<g transform="translate(${(this.offsetX ?? 0)}, ${this.offsetY ?? 0}) rotate(${this.rotation ?? 0} {{halfSize}} {{halfSize}})">${result}</g>`;
+        }
+
+        return result;
+      },
+      rotation: pickedRotation,
+      offsetX: pickedOffsetX,
+      offsetY: pickedOffsetY,
+      {{else}}
       value: componentCollection[group][key],
+      {{/if}}
     };
   } else {
     return undefined;
