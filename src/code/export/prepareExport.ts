@@ -73,9 +73,14 @@ export function prepareExport() {
             defaults: {},
           },
           collection: {},
+          width: 0,
+          height: 0,
         });
 
         for (const [componentName, component] of componentGroups.get(componentGroupName)) {
+          componentGroup.width = component.width;
+          componentGroup.height = component.height;
+
           componentGroup.collection[componentName] = {
             id: component.id,
             name: component.name,

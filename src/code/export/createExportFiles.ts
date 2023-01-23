@@ -102,7 +102,6 @@ export async function createExportFiles(exportData: Export) {
     }),
     'src/utils/pickComponent.ts': handlebars.compile(templates['src/utils/pickComponent.ts'])({
       fileShareUrl: exportData.frame.settings.fileShareUrl,
-      halfSize: (figma.getNodeById(exportData.frame.id) as FrameNode).width / 2,
       hasTransform,
     }),
     'src/utils/convertColor.ts': handlebars.compile(templates['src/utils/convertColor.ts'])({

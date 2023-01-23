@@ -23,6 +23,8 @@ export function getComponents({ prng, options }: Props): ComponentPickCollection
     group: '{{@key}}',
     values: options.{{@key}},
     {{#if ../hasTransform}}
+    width: {{width}},
+    height: {{height}},
     {{#if this.settings.rotation}}
     rotation: options.{{@key}}Rotation?.length ? options.{{@key}}Rotation : [0],
     {{else}}

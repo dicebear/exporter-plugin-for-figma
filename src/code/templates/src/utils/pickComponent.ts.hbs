@@ -20,6 +20,8 @@ type Props = {
   group: string,
   values?: string[],
   {{#if hasTransform}}
+  width: number,
+  height: number,
   rotation: number[],
   offsetX: number[],
   offsetY: number[],
@@ -27,7 +29,7 @@ type Props = {
 }
 
 {{#if hasTransform}}
-export function pickComponent({ prng, group, values = [], rotation, offsetX, offsetY}: Props): ComponentPick {
+export function pickComponent({ prng, group, width, height, values = [], rotation, offsetX, offsetY}: Props): ComponentPick {
 {{else}}
 export function pickComponent({ prng, group, values = []}: Props): ComponentPick {
 {{/if}}
@@ -53,7 +55,7 @@ export function pickComponent({ prng, group, values = []}: Props): ComponentPick
         let result = componentCollection[group][key](components, colors);
 
         if (this.rotation || this.offsetX || this.offsetY) {
-          result = `<g transform="translate(${(this.offsetX ?? 0)}, ${this.offsetY ?? 0}) rotate(${this.rotation ?? 0} {{halfSize}} {{halfSize}})">${result}</g>`;
+          result = `<g transform="translate(${(this.offsetX ?? 0)}, ${this.offsetY ?? 0}) rotate(${this.rotation ?? 0} ${width / 2} ${height / 2})">${result}</g>`;
         }
 
         return result;

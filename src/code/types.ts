@@ -38,6 +38,8 @@ export type ExportColor = {
 export type ExportComponentGroup = {
   settings: ComponentGroupSettings;
   collection: Record<string, ExportComponent>;
+  width: number;
+  height: number;
 };
 
 export type ExportColorGroup = {
