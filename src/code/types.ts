@@ -1,4 +1,5 @@
 export type FrameSettings = {
+  dicebearVersion: string;
   title: string;
   packageName: string;
   packageVersion: string;
@@ -24,6 +25,10 @@ export type ComponentGroupSettings = {
   offsetY: number | null;
 };
 
+export type ColorGroupSettings = {
+  notEqualWith: Record<string, boolean>;
+};
+
 export type ExportComponent = {
   id: string;
   name: string;
@@ -43,6 +48,7 @@ export type ExportComponentGroup = {
 };
 
 export type ExportColorGroup = {
+  settings: ColorGroupSettings;
   isUsedByComponents: boolean;
   collection: Record<string, ExportColor>;
 };

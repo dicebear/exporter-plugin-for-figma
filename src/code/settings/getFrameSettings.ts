@@ -4,6 +4,7 @@ export function getFrameSettings(frame: FrameNode, colorGroups: string[]): Frame
   const titlePlaceholder = 'My Avatar Style';
 
   const data: FrameSettings = {
+    dicebearVersion: '8.x',
     packageName: '',
     packageVersion: '',
     title: '',

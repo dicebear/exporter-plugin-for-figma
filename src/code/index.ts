@@ -4,6 +4,7 @@ import { processTask } from './utils/processTask';
 import { setComponentGroupSettings } from './settings/setComponentGroupSettings';
 import { setFrameSettings } from './settings/setFrameSettings';
 import { createExport } from './export/createExport';
+import { setColorGroupSettings } from './settings/setColorGroupSettings';
 
 figma.showUI(__html__, { width: 720, height: 400 });
 
@@ -33,6 +34,10 @@ figma.ui.onmessage = async (msg) => {
 
         case 'components':
           setComponentGroupSettings(getFrameSelection(), typeSplit[2], msg.data);
+          break;
+
+        case 'colors':
+          setColorGroupSettings(getFrameSelection(), typeSplit[2], msg.data);
           break;
       }
       break;
