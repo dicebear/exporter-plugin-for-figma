@@ -1,18 +1,28 @@
 <script>
+  import { saveAs } from 'file-saver';
   import { state } from '../stores/state';
   import { createZip } from '../utils/createZip';
 
   import Container from './Container.svelte';
 
-  onmessage = (event) => {
+  onmessage = async (event) => {
     const message = event.data.pluginMessage;
 
     if (message) {
       switch (message.type) {
         case 'export':
-          createZip(message.data.files, message.data.name).then(() => {
-            parent.postMessage({ pluginMessage: { type: 'init' } }, '*');
-          });
+          if (message.data.files) {
+            const blob = await createZip(message.data.files);
+
+            saveAs(blob, `${message.data.name}.zip`);
+          } else {
+            const blob = new Blob([message.data.content], { type: 'text/plain;charset=utf-8' });
+
+            saveAs(blob, `${message.data.name}.json`);
+          }
+
+          parent.postMessage({ pluginMessage: { type: 'init' } }, '*');
+
           break;
 
         default:

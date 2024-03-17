@@ -21,14 +21,14 @@ export async function applyNodeExportInfo(svg: string) {
       resultNode = {
         name: '',
         type: 'text',
-        value: `{{component::${nodeExportInfo.componentGroup}}}`,
+        value: `{{components.${nodeExportInfo.componentGroup}}}`,
         attributes: {},
         children: [],
       };
     }
 
     if (nodeExportInfo.fillColorGroup) {
-      resultNode.attributes.fill = `{{color::${nodeExportInfo.fillColorGroup}}}`;
+      resultNode.attributes.fill = `{{colors.${nodeExportInfo.fillColorGroup}}}`;
 
       // Remove fills from children
       for (const child of resultNode.children) {
@@ -41,7 +41,7 @@ export async function applyNodeExportInfo(svg: string) {
     }
 
     if (nodeExportInfo.strokeColorGroup) {
-      resultNode.attributes.stroke = `{{color::${nodeExportInfo.strokeColorGroup}}}`;
+      resultNode.attributes.stroke = `{{colors.${nodeExportInfo.strokeColorGroup}}}`;
 
       // Remove strokes from children
       for (const child of resultNode.children) {

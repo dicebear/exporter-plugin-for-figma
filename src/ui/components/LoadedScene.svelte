@@ -2,6 +2,8 @@
   import { state } from '../stores/state';
   import { activeStage } from '../stores/activeStage';
 
+  import { useDefinitionFile } from '../utils/useDefinitionFile';
+
   import MenuItem from './MenuItem.svelte';
   import GeneralForm from './GeneralForm.svelte';
   import PackageForm from './PackageForm.svelte';
@@ -11,18 +13,20 @@
   import ColorGroupForm from './ColorGroupForm.svelte';
 
   $: activeStageSplit = $activeStage.split(':');
-  $: usedColorGroups = Object.keys($state.data.colors).filter((colorGroupName) => $state.data.colors[colorGroupName].isUsedByComponents);
+  $: usedColorGroups = Object.keys($state.data.colors).filter(
+    (colorGroupName) => $state.data.colors[colorGroupName].isUsedByComponents,
+  );
 </script>
 
 <div class="left">
   <div class="menu-wrapper">
     <div class="menu-section">Frame</div>
     <MenuItem stage={'general'}>General</MenuItem>
-    {#if $state.data.frame.settings.compatibility != '8.x'}
+    {#if !useDefinitionFile($state.data.frame.settings.dicebearVersion)}
       <MenuItem stage={'package'}>Package</MenuItem>
     {/if}
     <MenuItem stage={'license'}>License</MenuItem>
-    {#if $state.data.frame.settings.compatibility != '8.x'}
+    {#if !useDefinitionFile($state.data.frame.settings.dicebearVersion)}
       <MenuItem stage={'hook'}>Hooks</MenuItem>
     {/if}
   </div>
@@ -38,7 +42,7 @@
     </div>
   {/if}
 
-  {#if usedColorGroups.length > 0}
+  {#if usedColorGroups.length > 0 && useDefinitionFile($state.data.frame.settings.dicebearVersion)}
     <div class="menu-wrapper">
       <div class="menu-section">Colors</div>
       {#each usedColorGroups as colorGroup}

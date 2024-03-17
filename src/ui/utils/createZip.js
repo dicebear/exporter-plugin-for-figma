@@ -1,4 +1,3 @@
-import { saveAs } from 'file-saver';
 import JSZip from 'jszip';
 
 export async function createZip(files, name) {
@@ -14,7 +13,5 @@ export async function createZip(files, name) {
     zip.file(path, file.trim() + '\n', { binary: false });
   }
 
-  const zipContent = await zip.generateAsync({ type: 'blob' });
-
-  saveAs(zipContent, `${name}.zip`);
+  return zip.generateAsync({ type: 'blob' });
 }
