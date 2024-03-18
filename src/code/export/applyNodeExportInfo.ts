@@ -21,7 +21,7 @@ export async function applyNodeExportInfo(svg: string) {
       resultNode = {
         name: '',
         type: 'text',
-        value: `{{components.${nodeExportInfo.componentGroup}}}`,
+        value: `{{{components.${nodeExportInfo.componentGroup}}}}`,
         attributes: {},
         children: [],
       };

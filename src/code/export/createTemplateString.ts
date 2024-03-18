@@ -47,7 +47,7 @@ export async function createTemplateString(exportData: Export, node: FrameNode |
   result = result.replace(/{{colors\.([a-z0-9]*)}}/gi, '${escape.xml(`${colors.$1}`)}');
 
   // Replace components
-  result = result.replace(/{{components\.([a-z0-9]*)}}/gi, "${components.$1?.value(components, colors) ?? ''}");
+  result = result.replace(/{{{components\.([a-z0-9]*)}}}/gi, "${components.$1?.value(components, colors) ?? ''}");
 
   return '`' + result + '`';
 }

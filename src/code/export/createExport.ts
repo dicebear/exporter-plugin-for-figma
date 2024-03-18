@@ -12,7 +12,7 @@ export async function createExport() {
 
   if (useDefinitionFile(exportData.frame.settings.dicebearVersion)) {
     return {
-      content: createExportDefinition(exportData),
+      content: await createExportDefinition(exportData),
       name,
     };
   } else {

@@ -9,6 +9,7 @@ export type FrameSettings = {
   source: string;
   licenseName: string;
   licenseUrl: string;
+  licenseContent: string;
   backgroundColorGroupName: string;
   shapeRendering: string;
   onPreCreateHook: string;
@@ -79,3 +80,27 @@ export type NodeExportInfo = {
   strokeColorGroup?: string;
   componentGroup?: string;
 };
+
+export interface DefinitionComponents {
+  [name: string]: {
+    probability?: number,
+    rotation?: number,
+    offset?: {
+      x?: number,
+      y?: number,
+    },
+    values: {
+      [name: string]: {
+        default?: boolean,
+        content: string,
+      }
+    }
+  }
+}
+
+export interface DefinitionColors {
+  [name: string]: {
+    notEqualWith?: string[],
+    values: string[],
+  }
+}

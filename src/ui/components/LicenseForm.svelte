@@ -1,7 +1,8 @@
 <script>
-  import { Input } from 'figma-plugin-ds-svelte';
+  import { Input, Textarea } from 'figma-plugin-ds-svelte';
   import { state } from '../stores/state';
   import Label from './Label.svelte';
+  import { useDefinitionFile } from '../utils/useDefinitionFile';
 </script>
 
 <div class="form">
@@ -34,6 +35,13 @@
     <Label>License URL</Label>
     <Input bind:value={$state.data.frame.settings.licenseUrl} />
   </div>
+
+  {#if useDefinitionFile($state.data.frame.settings.dicebearVersion)}
+    <div class="section">
+      <Label>License Content</Label>
+      <Textarea bind:value={$state.data.frame.settings.licenseContent} />
+    </div>
+  {/if}
 </div>
 
 <style lang="scss">
