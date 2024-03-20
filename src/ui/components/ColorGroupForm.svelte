@@ -11,11 +11,11 @@
 <div class="form">
   <div class="section">
     <Label>Should not be identical with:</Label>
-    <Select items={usedColorGroups} value={$state.data.colors[colorGroup].settings.differentFromColor} />
+    <Select items={usedColorGroups} bind:value={$state.data.colors[colorGroup].settings.differentFromColor} />
   </div>
   <div class="section">
     <Label>Should be a contrast color to:</Label>
-    <Select items={usedColorGroups} value={$state.data.colors[colorGroup].settings.contrastColor} />
+    <Select items={usedColorGroups} bind:value={$state.data.colors[colorGroup].settings.contrastColor} />
   </div>
 </div>
 

@@ -25,6 +25,7 @@ export async function createTemplateString(exportData: Export, node: FrameNode |
           delim: '-',
         }
       },
+      "removeUselessDefs",
       "removeUnknownsAndDefaults",
       "removeUselessStrokeAndFill",
       "collapseGroups",
