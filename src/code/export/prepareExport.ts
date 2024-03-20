@@ -51,8 +51,8 @@ export function prepareExport() {
     }
 
     for (const key of colorGroups.keys()) {
-      exportColorGroup.settings.notEqualWith ??= {};
-      exportColorGroup.settings.notEqualWith[key] ??= false;
+      exportColorGroup.settings.differentFromColor ??= null;
+      exportColorGroup.settings.contrastColor ??= null;
     }
   }
 

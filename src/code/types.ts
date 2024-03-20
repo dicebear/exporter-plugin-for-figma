@@ -27,7 +27,8 @@ export type ComponentGroupSettings = {
 };
 
 export type ColorGroupSettings = {
-  notEqualWith: Record<string, boolean>;
+  differentFromColor: string | null;
+  contrastColor: string | null;
 };
 
 export type ExportComponent = {
@@ -100,7 +101,8 @@ export interface DefinitionComponents {
 
 export interface DefinitionColors {
   [name: string]: {
-    notEqualWith?: string[],
     values: string[],
+    differentFromColor?: string,
+    contrastColor?: string,
   }
 }
