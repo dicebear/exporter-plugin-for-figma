@@ -15,21 +15,32 @@ export async function createTemplateString(exportData: Export, node: FrameNode |
 
   // Optimize the svg
   result = optimize(result, {
+    multipass: true,
     plugins: [
+      'cleanupIds',
       {
-        name: 'preset-default',
+        name: 'prefixIds',
+        params: {
+          prefix: normalizeName(node.name),
+          delim: '-',
+        }
+      },
+      "removeUnknownsAndDefaults",
+      "removeUselessStrokeAndFill",
+      "collapseGroups",
+      {
+        name: "convertPathData",
         params: {
           floatPrecision: exportData.frame.settings.precision,
-          overrides: {
-            cleanupIDs: {
-              prefix: normalizeName(node.name) + '-',
-            },
-          },
-        },
+        }
       },
-      // The default preset includes this plugin, but executes it too early.
-      // Therefore repeated at this point, so that really all unnecessary groups are removed.
-      'collapseGroups',
+      {
+        name: "convertTransform",
+        params: {
+          floatPrecision: exportData.frame.settings.precision,
+        }
+      },
+      "mergePaths",
     ],
   }).data.trim();
 
