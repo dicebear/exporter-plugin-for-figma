@@ -5,7 +5,12 @@
 
   export let colorGroup;
 
-  $: usedColorGroups = Object.keys($state.data.colors).filter((colorGroupName) => $state.data.colors[colorGroupName].isUsedByComponents && colorGroupName !== colorGroup);
+  $: usedColorGroups = [
+    'background',
+    ...Object.keys($state.data.colors).filter(
+      (colorGroupName) => $state.data.colors[colorGroupName].isUsedByComponents && colorGroupName !== colorGroup,
+    ),
+  ];
 </script>
 
 <div class="form">

@@ -5,7 +5,6 @@ import { normalizeName } from '../utils/normalizeName';
 import { applyNodeExportInfo } from './applyNodeExportInfo';
 import { calculateNodeExportInfo } from './calculateNodeExportInfo';
 import { useDefinitionFile } from '../utils/useDefinitionFile';
-import convertDefinitionFillsAndStrokes from '../svgo/convertDefinitionFillsAndStrokes';
 import { PluginConfig } from 'svgo';
 
 export async function createTemplateString(exportData: Export, node: FrameNode | ComponentNode) {
@@ -57,7 +56,7 @@ export async function createTemplateString(exportData: Export, node: FrameNode |
     result = result.replace(/{{colors\.([a-z0-9]*)}}/gi, 'url(#color-$1)');
 
     // Replace components
-    result = result.replace(/{{components\.([a-z0-9]*)}}/gi, `<use href="url(#component-$1)" />`);
+    result = result.replace(/{{components\.([a-z0-9]*)}}/gi, `<use href="url(#component-$1)"/>`);
 
     return result;
   }

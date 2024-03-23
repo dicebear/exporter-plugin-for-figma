@@ -4,7 +4,7 @@ export function removeEmptyValuesFromObject(obj: Record<string, any>): Record<st
       removeEmptyValuesFromObject(obj[key]);
     }
     
-    if (obj[key] === null || obj[key] === '' || obj[key] === undefined || Object.keys(obj[key]).length === 0) {
+    if (obj[key] === null || obj[key] === '' || obj[key] === undefined || (typeof obj[key] === 'object' && Object.keys(obj[key]).length === 0)) {
       delete obj[key];
     }
   });
