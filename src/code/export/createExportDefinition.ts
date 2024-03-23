@@ -2,6 +2,7 @@ import { JSONSchema7 } from 'json-schema';
 import { DefinitionColors, DefinitionComponents, Export } from '../types';
 import { removeEmptyValuesFromObject } from '../utils/removeEmptyValuesFromObject';
 import { createTemplateString } from './createTemplateString';
+import { getDependencies } from '../utils/getDependencies';
 
 export async function createExportDefinition(exportData: Export) {
   const size = (figma.getNodeById(exportData.frame.id) as FrameNode).width;
@@ -22,9 +23,11 @@ export async function createExportDefinition(exportData: Export) {
 
     for (const [componentKey, componentValue] of Object.entries(componentGroupValue.collection)) {
       const componentNode = figma.getNodeById(componentValue.id) as ComponentNode;
+      const componentContent = await createTemplateString(exportData, componentNode);
 
       components[componentGroupKey].values[componentKey] = {
-        content: await createTemplateString(exportData, componentNode),
+        content: componentContent,
+        dependencies: getDependencies(componentContent),
         default: componentGroupValue.settings.defaults[componentKey] ?? false,
       };
     }
@@ -60,6 +63,8 @@ export async function createExportDefinition(exportData: Export) {
     }
   }
 
+  const bodyContent = await createTemplateString(exportData, figma.getNodeById(exportData.frame.id) as FrameNode);
+
   return JSON.stringify(
     removeEmptyValuesFromObject({
       $schema: 'https://www.dicebear.com/schema/definition.json',
@@ -79,7 +84,10 @@ export async function createExportDefinition(exportData: Export) {
           url: exportData.frame.settings.source,
         },
       },
-      body: await createTemplateString(exportData, figma.getNodeById(exportData.frame.id) as FrameNode),
+      body: {
+        content: bodyContent,
+        dependencies: getDependencies(bodyContent),
+      },
       attributes: {
         viewBox: `0 0 ${size} ${size}`,
         fill: 'none',

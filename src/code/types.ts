@@ -93,6 +93,10 @@ export interface DefinitionComponents {
     values: {
       [name: string]: {
         default?: boolean,
+        dependencies: {
+          components: string[],
+          colors: string[],
+        },
         content: string,
       }
     }
