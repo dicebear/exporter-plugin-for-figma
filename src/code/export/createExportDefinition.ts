@@ -75,7 +75,7 @@ export async function createExportDefinition(exportData: Export) {
           url: exportData.frame.settings.homepage,
         },
         source: {
-          name: exportData.frame.settings.title,
+          name: exportData.frame.settings.sourceTitle,
           url: exportData.frame.settings.source,
         },
       },
