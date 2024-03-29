@@ -2,12 +2,15 @@ import { DefinitionColors, DefinitionComponents, Export } from '../types';
 import { removeEmptyValuesFromObject } from '../utils/removeEmptyValuesFromObject';
 import { createTemplateString } from './createTemplateString';
 import { getDependencies } from '../utils/getDependencies';
+import { sortComponents } from '../utils/sortComponents';
+import { sortColors } from '../utils/sortColors';
 
 export async function createExportDefinition(exportData: Export) {
   const size = (figma.getNodeById(exportData.frame.id) as FrameNode).width;
   const components: DefinitionComponents = [];
   const colors: DefinitionColors = [];
 
+  // Collect components
   for (const [componentGroupKey, componentGroupValue] of Object.entries(exportData.components)) {
     const index = components.push({
       name: componentGroupKey,
@@ -33,6 +36,7 @@ export async function createExportDefinition(exportData: Export) {
     }
   }
 
+  // Collect background color
   if (exportData.frame.settings.backgroundColorGroupName) {
     const colorGroup = exportData.colors[exportData.frame.settings.backgroundColorGroupName];
 
@@ -44,6 +48,7 @@ export async function createExportDefinition(exportData: Export) {
     }
   }
 
+  // Collect colors
   for (const [colorGroupKey, colorGroupValue] of Object.entries(exportData.colors)) {
     if (!colorGroupValue.isUsedByComponents) {
       continue;
@@ -67,6 +72,7 @@ export async function createExportDefinition(exportData: Export) {
     });
   }
 
+  // Create definition
   const bodyContent = await createTemplateString(exportData, figma.getNodeById(exportData.frame.id) as FrameNode);
 
   return JSON.stringify(
@@ -107,8 +113,8 @@ export async function createExportDefinition(exportData: Export) {
           value: exportData.frame.settings.shapeRendering,
         },
       ],
-      components,
-      colors,
+      components: sortComponents(components),
+      colors: sortColors(colors),
     }),
     undefined,
     2

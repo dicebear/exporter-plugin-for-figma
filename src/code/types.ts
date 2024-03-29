@@ -83,7 +83,7 @@ export type NodeExportInfo = {
 };
 
 export type DefinitionComponents = Array<{
-  name?: string;
+  name: string;
   probability?: number;
   rotation?: number;
   offset?: {
