@@ -82,31 +82,28 @@ export type NodeExportInfo = {
   componentGroup?: string;
 };
 
-export interface DefinitionComponents {
-  [name: string]: {
-    probability?: number,
-    rotation?: number,
-    offset?: {
-      x?: number,
-      y?: number,
-    },
-    values: {
-      [name: string]: {
-        default?: boolean,
-        dependencies: {
-          components: string[],
-          colors: string[],
-        },
-        content: string,
-      }
-    }
-  }
-}
+export type DefinitionComponents = Array<{
+  name?: string;
+  probability?: number;
+  rotation?: number;
+  offset?: {
+    x?: number;
+    y?: number;
+  };
+  values: Array<{
+    name: string;
+    default?: boolean;
+    dependencies: {
+      components: string[];
+      colors: string[];
+    };
+    content: string;
+  }>;
+}>;
 
-export interface DefinitionColors {
-  [name: string]: {
-    values: string[],
-    differentFromColor?: string,
-    contrastColor?: string,
-  }
-}
+export type DefinitionColors = Array<{
+  name: string;
+  values: string[];
+  differentFromColor?: string;
+  contrastColor?: string;
+}>;

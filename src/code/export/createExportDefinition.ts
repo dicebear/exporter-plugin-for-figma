@@ -1,4 +1,3 @@
-import { JSONSchema7 } from 'json-schema';
 import { DefinitionColors, DefinitionComponents, Export } from '../types';
 import { removeEmptyValuesFromObject } from '../utils/removeEmptyValuesFromObject';
 import { createTemplateString } from './createTemplateString';
@@ -6,30 +5,42 @@ import { getDependencies } from '../utils/getDependencies';
 
 export async function createExportDefinition(exportData: Export) {
   const size = (figma.getNodeById(exportData.frame.id) as FrameNode).width;
-  const components: DefinitionComponents = {};
-  const colors: DefinitionColors = {};
-  const additionalOptions: Record<string, JSONSchema7> = {};
+  const components: DefinitionComponents = [];
+  const colors: DefinitionColors = [];
 
   for (const [componentGroupKey, componentGroupValue] of Object.entries(exportData.components)) {
-    components[componentGroupKey] = {
+    const index = components.push({
+      name: componentGroupKey,
       rotation: componentGroupValue.settings.rotation || undefined,
       probability: componentGroupValue.settings.probability || undefined,
       offset: {
         x: componentGroupValue.settings.offsetX || undefined,
         y: componentGroupValue.settings.offsetY || undefined,
       },
-      values: {},
-    };
+      values: [],
+    });
 
     for (const [componentKey, componentValue] of Object.entries(componentGroupValue.collection)) {
       const componentNode = figma.getNodeById(componentValue.id) as ComponentNode;
       const componentContent = await createTemplateString(exportData, componentNode);
 
-      components[componentGroupKey].values[componentKey] = {
+      components[index - 1].values.push({
+        name: componentKey,
         content: componentContent,
         dependencies: getDependencies(componentContent),
         default: componentGroupValue.settings.defaults[componentKey] ?? false,
-      };
+      });
+    }
+  }
+
+  if (exportData.frame.settings.backgroundColorGroupName) {
+    const colorGroup = exportData.colors[exportData.frame.settings.backgroundColorGroupName];
+
+    if (colorGroup) {
+      colors.push({
+        'name': 'background',
+        'values': Object.values(colorGroup.collection).map((v) => v.value),
+      });
     }
   }
 
@@ -41,7 +52,8 @@ export async function createExportDefinition(exportData: Export) {
     const differentFromColor = colorGroupValue.settings.differentFromColor;
     const contrastColor = colorGroupValue.settings.contrastColor;
 
-    colors[colorGroupKey] = {
+    colors.push({
+      name: colorGroupKey,
       differentFromColor:
         differentFromColor === 'background' ||
         (differentFromColor && exportData.colors[differentFromColor]?.isUsedByComponents)
@@ -52,22 +64,7 @@ export async function createExportDefinition(exportData: Export) {
           ? contrastColor
           : undefined,
       values: Object.values(colorGroupValue.collection).map((v) => v.value),
-    };
-  }
-
-  if (exportData.frame.settings.backgroundColorGroupName) {
-    const colorGroup = exportData.colors[exportData.frame.settings.backgroundColorGroupName];
-
-    if (colorGroup) {
-      additionalOptions['backgroundColor'] = {
-        type: 'array',
-        items: {
-          type: 'string',
-          pattern: '^(transparent|[a-fA-F0-9]{6})$',
-        },
-        default: Object.values(colorGroup.collection).map((v) => v.value),
-      };
-    }
+    });
   }
 
   const bodyContent = await createTemplateString(exportData, figma.getNodeById(exportData.frame.id) as FrameNode);
@@ -91,19 +88,27 @@ export async function createExportDefinition(exportData: Export) {
           name: exportData.frame.settings.sourceTitle,
           url: exportData.frame.settings.source,
         },
+        size: {
+          width: size,
+          height: size,
+        },
       },
       body: {
         content: bodyContent,
         dependencies: getDependencies(bodyContent),
       },
-      attributes: {
-        viewBox: `0 0 ${size} ${size}`,
-        fill: 'none',
-        shapeRendering: exportData.frame.settings.shapeRendering,
-      },
+      attributes: [
+        {
+          name: 'fill',
+          value: 'none',
+        },
+        {
+          name: 'shape-rendering',
+          value: exportData.frame.settings.shapeRendering,
+        },
+      ],
       components,
       colors,
-      additionalOptions,
     }),
     undefined,
     2
