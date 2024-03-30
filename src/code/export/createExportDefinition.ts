@@ -94,9 +94,8 @@ export async function createExportDefinition(exportData: Export) {
           name: exportData.frame.settings.sourceTitle,
           url: exportData.frame.settings.source,
         },
-        size: {
-          width: size,
-          height: size,
+        canvas: {
+          size: size,
         },
       },
       body: {
