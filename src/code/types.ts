@@ -85,10 +85,10 @@ export type NodeExportInfo = {
 export type DefinitionComponents = Array<{
   name: string;
   probability?: number;
-  rotation?: number;
+  rotation?: number[];
   offset?: {
-    x?: number;
-    y?: number;
+    x?: number[];
+    y?: number[];
   };
   values: Array<{
     name: string;
