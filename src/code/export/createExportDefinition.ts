@@ -1,7 +1,6 @@
 import { DefinitionColors, DefinitionComponents, Export } from '../types';
 import { removeEmptyValuesFromObject } from '../utils/removeEmptyValuesFromObject';
 import { createTemplateString } from './createTemplateString';
-import { getDependencies } from '../utils/getDependencies';
 import { sortComponents } from '../utils/sortComponents';
 import { sortColors } from '../utils/sortColors';
 
@@ -36,7 +35,6 @@ export async function createExportDefinition(exportData: Export) {
       components[index - 1].values.push({
         name: componentKey,
         content: componentContent,
-        dependencies: getDependencies(componentContent),
         default: componentGroupValue.settings.defaults[componentKey] ?? false,
       });
     }
@@ -104,10 +102,7 @@ export async function createExportDefinition(exportData: Export) {
           size: size,
         },
       },
-      body: {
-        content: bodyContent,
-        dependencies: getDependencies(bodyContent),
-      },
+      body: bodyContent,
       attributes: [
         {
           name: 'fill',

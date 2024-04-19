@@ -93,10 +93,6 @@ export type DefinitionComponents = Array<{
   values: Array<{
     name: string;
     default?: boolean;
-    dependencies: {
-      components: string[];
-      colors: string[];
-    };
     content: string;
   }>;
 }>;
