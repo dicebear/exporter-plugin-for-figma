@@ -19,6 +19,8 @@ export async function createExportDefinition(exportData: Export) {
 
     const index = components.push({
       name: componentGroupKey,
+      width: 0,
+      height: 0,
       rotation: typeof rotation === 'number' ? (rotation === 0 ? [rotation] : [rotation * -1, rotation]) : undefined,
       probability: typeof probability === 'number' ? probability : undefined,
       offset: {
@@ -31,6 +33,9 @@ export async function createExportDefinition(exportData: Export) {
     for (const [componentKey, componentValue] of Object.entries(componentGroupValue.collection)) {
       const componentNode = figma.getNodeById(componentValue.id) as ComponentNode;
       const componentContent = await createTemplateString(exportData, componentNode);
+
+      components[index - 1].width = Math.max(components[index - 1].width, componentNode.width);
+      components[index - 1].height = Math.max(components[index - 1].height, componentNode.height);
 
       components[index - 1].values.push({
         name: componentKey,
@@ -98,11 +103,12 @@ export async function createExportDefinition(exportData: Export) {
           name: exportData.frame.settings.sourceTitle,
           url: exportData.frame.settings.source,
         },
-        canvas: {
-          size: size,
-        },
       },
-      body: bodyContent,
+      body: {
+        content: bodyContent,
+        width: size,
+        height: size,
+      },
       attributes: [
         {
           name: 'fill',

@@ -6,6 +6,7 @@
   export let colorGroup;
 
   $: usedColorGroups = [
+    '',
     'background',
     ...Object.keys($state.data.colors).filter(
       (colorGroupName) => $state.data.colors[colorGroupName].isUsedByComponents && colorGroupName !== colorGroup,
