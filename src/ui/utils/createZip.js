@@ -1,6 +1,6 @@
 import JSZip from 'jszip';
 
-export async function createZip(files, name) {
+export async function createZip(files) {
   const zip = new JSZip();
 
   for (let path in files) {

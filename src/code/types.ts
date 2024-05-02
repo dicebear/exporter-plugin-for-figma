@@ -27,8 +27,8 @@ export type ComponentGroupSettings = {
 };
 
 export type ColorGroupSettings = {
-  differentFromColor: string | null;
-  contrastColor: string | null;
+  notEqualTo: Record<string, boolean>;
+  contrastTo: string | null;
 };
 
 export type ExportComponent = {
@@ -102,6 +102,6 @@ export type DefinitionComponents = Array<{
 export type DefinitionColors = Array<{
   name: string;
   values: string[];
-  differentFromColor?: string;
-  contrastColor?: string;
+  notEqualTo?: string[];
+  contrastTo?: string;
 }>;

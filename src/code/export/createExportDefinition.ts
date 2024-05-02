@@ -63,19 +63,23 @@ export async function createExportDefinition(exportData: Export) {
       continue;
     }
 
-    const differentFromColor = colorGroupValue.settings.differentFromColor;
-    const contrastColor = colorGroupValue.settings.contrastColor;
+    const notEqualToCollection = colorGroupValue.settings.notEqualTo;
+    const contrastTo = colorGroupValue.settings.contrastTo;
 
     colors.push({
       name: colorGroupKey,
-      differentFromColor:
-        differentFromColor === 'background' ||
-        (differentFromColor && exportData.colors[differentFromColor]?.isUsedByComponents)
-          ? differentFromColor
-          : undefined,
-      contrastColor:
-        contrastColor === 'background' || (contrastColor && exportData.colors[contrastColor]?.isUsedByComponents)
-          ? contrastColor
+      notEqualTo: Object.entries(notEqualToCollection)
+        .filter(([key, value]) => {
+          if (key === 'background' || exportData.colors[key]?.isUsedByComponents) {
+            return value;
+          }
+
+          return false;
+        })
+        .map(([key]) => key),
+      contrastTo:
+        contrastTo === 'background' || (contrastTo && exportData.colors[contrastTo]?.isUsedByComponents)
+          ? contrastTo
           : undefined,
       values: Object.values(colorGroupValue.collection).map((v) => v.value),
     });

@@ -11,11 +11,12 @@
 
 <div class="form">
   <div class="section">
+    <Label>Title</Label>
+    <Input bind:value={$state.data.frame.settings.title} />
+  </div>
+  <div class="section">
     <Label>DiceBear version</Label>
-    <Select
-      items={versions}
-      bind:value={$state.data.frame.settings.dicebearVersion}
-    />
+    <Select items={versions} bind:value={$state.data.frame.settings.dicebearVersion} />
   </div>
   <div class="section">
     <Label>Background Color</Label>

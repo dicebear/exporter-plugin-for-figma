@@ -1,3 +1,4 @@
+import { kebabCase } from 'change-case';
 import { prepareExport } from './prepareExport';
 import { createExportFiles } from './createExportFiles';
 import { createExportDefinition } from './createExportDefinition';
@@ -5,10 +6,7 @@ import { useDefinitionFile } from '../utils/useDefinitionFile';
 
 export async function createExport() {
   const exportData = prepareExport();
-  const name = exportData.frame.settings.packageName
-    .split('/')
-    .slice(-1)[0]
-    .replace(/[^a-z0-9\-\_]/gi, '');
+  const name = kebabCase(exportData.frame.settings.title.replace(/[^a-z0-9\-\_\s]/gi, '').trim()) ?? 'avatar';
 
   if (useDefinitionFile(exportData.frame.settings.dicebearVersion)) {
     return {
@@ -19,6 +17,6 @@ export async function createExport() {
     return {
       files: await createExportFiles(exportData),
       name,
-    }
-  };
+    };
+  }
 }

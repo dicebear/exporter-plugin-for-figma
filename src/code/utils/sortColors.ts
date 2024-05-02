@@ -1,13 +1,20 @@
-import { DefinitionColors } from "../types";
-import type { ValuesType } from "utility-types";
+import { DefinitionColors } from '../types';
+import type { ValuesType } from 'utility-types';
 
-function getPriority(color: ValuesType<DefinitionColors>, colors: DefinitionColors) {
-  if (color.contrastColor) {
-    return colors.findIndex(e => e.name === color.contrastColor) + 1;
-  } else if (color.differentFromColor) {
-    return colors.findIndex(e => e.name === color.differentFromColor) + 1;
+function getDependencies(color: ValuesType<DefinitionColors>): string[] {
+  const dependencies = new Set<string>();
+
+  if (color.contrastTo) {
+    dependencies.add(color.contrastTo);
   }
-  return 0;
+
+  if (color.notEqualTo) {
+    for (const notEqualTo of color.notEqualTo) {
+      dependencies.add(notEqualTo);
+    }
+  }
+
+  return Array.from(dependencies);
 }
 
 export function sortColors(colors: DefinitionColors) {
@@ -17,16 +24,16 @@ export function sortColors(colors: DefinitionColors) {
 
   // Sort by dependencies first and then by name, but keep `background` at the top
   colors.sort((a, b) => {
-    // Priorität ermitteln
-    const priorityA = getPriority(a, colors);
-    const priorityB = getPriority(b, colors);
+    const aIncludesB = getDependencies(a).includes(b.name);
+    const bIncludesA = getDependencies(b).includes(a.name);
 
-    // Erst nach Priorität sortieren
-    if (priorityA !== priorityB) {
-      return priorityA - priorityB;
+    if (aIncludesB == bIncludesA) {
+      return 0;
+    } else if (aIncludesB) {
+      return 1;
+    } else {
+      return -1;
     }
-
-    return 0
   });
 
   // Sort values
