@@ -22,25 +22,25 @@ export async function createTemplateString(exportData: Export, node: FrameNode |
       params: {
         prefix: normalizeName(node.name),
         delim: '-',
-      }
+      },
     },
-    "removeUselessDefs",
-    "removeUnknownsAndDefaults",
-    "removeUselessStrokeAndFill",
-    "collapseGroups",
+    'removeUselessDefs',
+    'removeUnknownsAndDefaults',
+    'removeUselessStrokeAndFill',
+    'collapseGroups',
     {
-      name: "convertPathData",
+      name: 'convertPathData',
       params: {
         floatPrecision: exportData.frame.settings.precision,
-      }
+      },
     },
     {
-      name: "convertTransform",
+      name: 'convertTransform',
       params: {
         floatPrecision: exportData.frame.settings.precision,
-      }
+      },
     },
-    "mergePaths",
+    'mergePaths',
   ];
 
   result = optimize(result, {
@@ -56,7 +56,7 @@ export async function createTemplateString(exportData: Export, node: FrameNode |
     result = result.replace(/{{colors\.([a-z0-9]*)}}/gi, 'url(#color-$1)');
 
     // Replace components
-    result = result.replace(/{{components\.([a-z0-9]*)}}/gi, `<use href="url(#component-$1)"/>`);
+    result = result.replace(/{{components\.([a-z0-9]*)}}/gi, `<use href="#component-$1"/>`);
 
     return result;
   }
