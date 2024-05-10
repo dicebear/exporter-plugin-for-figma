@@ -38,8 +38,8 @@
 
   {#if useDefinitionFile($state.data.frame.settings.dicebearVersion)}
     <div class="section">
-      <Label>License Content</Label>
-      <Textarea bind:value={$state.data.frame.settings.licenseContent} />
+      <Label>License Text</Label>
+      <Textarea bind:value={$state.data.frame.settings.licenseText} />
     </div>
   {/if}
 </div>

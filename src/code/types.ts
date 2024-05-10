@@ -9,7 +9,7 @@ export type FrameSettings = {
   source: string;
   licenseName: string;
   licenseUrl: string;
-  licenseContent: string;
+  licenseText: string;
   backgroundColorGroupName: string;
   shapeRendering: string;
   onPreCreateHook: string;
