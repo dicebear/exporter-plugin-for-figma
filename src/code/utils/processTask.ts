@@ -7,7 +7,7 @@ export function processTask(cb: () => Promise<{ type: string; data: any }>) {
   setTimeout(async () => {
     try {
       figma.ui.postMessage(await cb());
-    } catch (e) {
+    } catch (e: any) {
       figma.ui.postMessage({
         type: 'error',
         data: {

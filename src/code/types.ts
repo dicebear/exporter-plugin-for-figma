@@ -1,4 +1,5 @@
 export type FrameSettings = {
+  dicebearVersion: string;
   title: string;
   packageName: string;
   packageVersion: string;
@@ -8,6 +9,7 @@ export type FrameSettings = {
   source: string;
   licenseName: string;
   licenseUrl: string;
+  licenseText: string;
   backgroundColorGroupName: string;
   shapeRendering: string;
   onPreCreateHook: string;
@@ -22,6 +24,11 @@ export type ComponentGroupSettings = {
   rotation: number | null;
   offsetX: number | null;
   offsetY: number | null;
+};
+
+export type ColorGroupSettings = {
+  notEqualTo: Record<string, boolean>;
+  contrastTo: string | null;
 };
 
 export type ExportComponent = {
@@ -43,6 +50,7 @@ export type ExportComponentGroup = {
 };
 
 export type ExportColorGroup = {
+  settings: ColorGroupSettings;
   isUsedByComponents: boolean;
   collection: Record<string, ExportColor>;
 };
@@ -73,3 +81,27 @@ export type NodeExportInfo = {
   strokeColorGroup?: string;
   componentGroup?: string;
 };
+
+export type DefinitionComponents = Array<{
+  name: string;
+  width: number;
+  height: number;
+  probability?: number;
+  rotation?: number[];
+  offset?: {
+    x?: number[];
+    y?: number[];
+  };
+  values: Array<{
+    name: string;
+    default?: boolean;
+    content: string;
+  }>;
+}>;
+
+export type DefinitionColors = Array<{
+  name: string;
+  values: string[];
+  notEqualTo?: string[];
+  contrastTo?: string;
+}>;

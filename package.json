@@ -6,7 +6,8 @@
     "build": "rollup -c",
     "dev": "rollup -c -w"
   },
-  "devDependencies": {
+  "dependencies": {
+    "@babel/plugin-transform-runtime": "^7.24.3",
     "@babel/preset-env": "^7.18.2",
     "@figma/plugin-typings": "^1.47.0",
     "@rollup/plugin-babel": "^5.3.1",
@@ -16,6 +17,7 @@
     "@types/json-schema": "^7.0.11",
     "@types/sort-object-keys": "^1.1.0",
     "@types/svgo": "^2.6.3",
+    "change-case": "^5.4.4",
     "core-js": "^3.23.0",
     "cssnano": "^5.1.11",
     "deep-equal": "^2.0.5",
@@ -39,9 +41,10 @@
     "svelte": "^3.48.0",
     "svelte-ace": "^1.0.21",
     "svelte-preprocess": "^4.10.7",
-    "svgo": "^2.8.0",
+    "svgo": "^3.2.0",
     "svgson": "^5.2.1",
     "tslib": "^2.4.0",
-    "typescript": "^4.7.3"
+    "typescript": "^4.7.3",
+    "utility-types": "^3.11.0"
   }
 }

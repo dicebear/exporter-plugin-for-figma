@@ -1,9 +1,11 @@
 import { FrameSettings } from '../types';
+import { useDefinitionFile } from '../utils/useDefinitionFile';
 
 export function getFrameSettings(frame: FrameNode, colorGroups: string[]): FrameSettings {
   const titlePlaceholder = 'My Avatar Style';
 
   const data: FrameSettings = {
+    dicebearVersion: '9.x',
     packageName: '',
     packageVersion: '',
     title: '',
@@ -13,6 +15,7 @@ export function getFrameSettings(frame: FrameNode, colorGroups: string[]): Frame
     source: '',
     licenseName: 'CC BY 4.0',
     licenseUrl: 'https://creativecommons.org/licenses/by/4.0/',
+    licenseText: '',
     shapeRendering: 'auto',
     backgroundColorGroupName: '',
     onPreCreateHook: '',
@@ -25,16 +28,18 @@ export function getFrameSettings(frame: FrameNode, colorGroups: string[]): Frame
     data.title = titlePlaceholder;
   }
 
-  if (!data.sourceTitle || data.sourceTitle === titlePlaceholder) {
-    data.sourceTitle = data.title;
-  }
+  if (!useDefinitionFile(data.dicebearVersion)) {
+    if (!data.sourceTitle || data.sourceTitle === titlePlaceholder) {
+      data.sourceTitle = data.title;
+    }
 
-  if (!data.packageName) {
-    data.packageName = '@dicebear/my-avatar-style';
-  }
+    if (!data.packageName) {
+      data.packageName = '@dicebear/my-avatar-style';
+    }
 
-  if (!data.packageVersion) {
-    data.packageVersion = '1.0.0';
+    if (!data.packageVersion) {
+      data.packageVersion = '1.0.0';
+    }
   }
 
   if (false === colorGroups.includes(data.backgroundColorGroupName)) {

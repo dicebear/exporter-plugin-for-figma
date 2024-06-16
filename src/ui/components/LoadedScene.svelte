@@ -2,23 +2,33 @@
   import { state } from '../stores/state';
   import { activeStage } from '../stores/activeStage';
 
+  import { useDefinitionFile } from '../utils/useDefinitionFile';
+
   import MenuItem from './MenuItem.svelte';
   import GeneralForm from './GeneralForm.svelte';
   import PackageForm from './PackageForm.svelte';
   import LicenseForm from './LicenseForm.svelte';
   import HookForm from './HookForm.svelte';
   import ComponentGroupForm from './ComponentGroupForm.svelte';
+  import ColorGroupForm from './ColorGroupForm.svelte';
 
   $: activeStageSplit = $activeStage.split(':');
+  $: usedColorGroups = Object.keys($state.data.colors).filter(
+    (colorGroupName) => $state.data.colors[colorGroupName].isUsedByComponents,
+  );
 </script>
 
 <div class="left">
   <div class="menu-wrapper">
     <div class="menu-section">Frame</div>
-    <MenuItem stage={'package'}>Package</MenuItem>
-    <MenuItem stage={'license'}>License</MenuItem>
     <MenuItem stage={'general'}>General</MenuItem>
-    <MenuItem stage={'hook'}>Hooks</MenuItem>
+    {#if !useDefinitionFile($state.data.frame.settings.dicebearVersion)}
+      <MenuItem stage={'package'}>Package</MenuItem>
+    {/if}
+    <MenuItem stage={'license'}>License</MenuItem>
+    {#if !useDefinitionFile($state.data.frame.settings.dicebearVersion)}
+      <MenuItem stage={'hook'}>Hooks</MenuItem>
+    {/if}
   </div>
 
   {#if Object.keys($state.data.components).length > 0}
@@ -31,11 +41,24 @@
       {/each}
     </div>
   {/if}
+
+  {#if usedColorGroups.length > 0 && useDefinitionFile($state.data.frame.settings.dicebearVersion)}
+    <div class="menu-wrapper">
+      <div class="menu-section">Colors</div>
+      {#each usedColorGroups as colorGroup}
+        <MenuItem stage={`color:${colorGroup}`}>
+          {colorGroup}
+        </MenuItem>
+      {/each}
+    </div>
+  {/if}
 </div>
 {#key $activeStage}
   <div class="right">
     {#if activeStageSplit[0] === 'component'}
       <ComponentGroupForm componentGroup={activeStageSplit[1]} />
+    {:else if activeStageSplit[0] === 'color'}
+      <ColorGroupForm colorGroup={activeStageSplit[1]} />
     {:else if activeStageSplit[0] === 'package'}
       <PackageForm />
     {:else if activeStageSplit[0] === 'license'}

@@ -4,6 +4,9 @@ export function getComponentGroupSettings(frame: FrameNode, componentGroup: stri
   return {
     defaults: {},
     probability: null,
+    rotation: '',
+    offsetX: '',
+    offsetY: '',
     ...JSON.parse(frame.getPluginData(`components/${componentGroup}/settings`) || '{}'),
   };
 }

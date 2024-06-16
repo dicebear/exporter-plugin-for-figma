@@ -5,9 +5,19 @@
   import Select from './Select.svelte';
 
   $: backgroundColors = ['', ...Object.keys($state.data.colors)];
+
+  let versions = ['10.x', '9.x', '8.x', '7.x', '6.x', '5.x'];
 </script>
 
 <div class="form">
+  <div class="section">
+    <Label>Title</Label>
+    <Input bind:value={$state.data.frame.settings.title} />
+  </div>
+  <div class="section">
+    <Label>DiceBear version</Label>
+    <Select items={versions} bind:value={$state.data.frame.settings.dicebearVersion} />
+  </div>
   <div class="section">
     <Label>Background Color</Label>
     <Select items={backgroundColors} bind:value={$state.data.frame.settings.backgroundColorGroupName} />

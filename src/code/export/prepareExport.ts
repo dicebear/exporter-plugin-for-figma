@@ -5,6 +5,7 @@ import { findAllColorGroups } from '../queries/findAllColorGroups';
 import { getFrameSelection } from '../utils/getFrameSelection';
 import { getFrameSettings } from '../settings/getFrameSettings';
 import { getComponentGroupSettings } from '../settings/getComponentGroupSettings';
+import { getColorGroupSettings } from '../settings/getColorGroupSettings';
 import { findAllNodesWithColor } from '../queries/findAllNodesWithColor';
 import { getColorsByNode } from '../utils/getColorsByNode';
 import { getNameParts } from '../utils/getNameParts';
@@ -29,6 +30,7 @@ export function prepareExport() {
 
   for (const [colorGroupName, colorGroup] of colorGroups) {
     const exportColorGroup: ExportColorGroup = (exportData.colors[colorGroupName] = {
+      settings: getColorGroupSettings(frameSelection, colorGroupName),
       isUsedByComponents: false,
       collection: {},
     });
@@ -46,6 +48,14 @@ export function prepareExport() {
           solidPaint.opacity === 1 ? undefined : solidPaint.opacity
         ),
       };
+    }
+
+    for (const key of colorGroups.keys()) {
+      if (typeof exportColorGroup.settings.notEqualTo !== 'object') {
+        exportColorGroup.settings.notEqualTo = {};
+      }
+
+      exportColorGroup.settings.contrastTo ??= null;
     }
   }
 

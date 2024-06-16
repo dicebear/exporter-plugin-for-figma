@@ -88,8 +88,13 @@ export default [
         include: '**/*.hbs',
       }),
       babel({
-        babelHelpers: 'bundled',
+        babelHelpers: 'runtime',
         compact: false,
+        plugins: [
+          [
+            '@babel/plugin-transform-runtime',
+          ]
+        ],
         presets: [
           [
             '@babel/preset-env',

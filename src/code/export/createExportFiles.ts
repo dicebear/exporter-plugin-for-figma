@@ -34,6 +34,7 @@ export async function createExportFiles(exportData: Export) {
     'package.json': handlebars.compile(templates['package.json'])({
       packageName: exportData.frame.settings.packageName,
       packageVersion: exportData.frame.settings.packageVersion,
+      dicebearVersion: exportData.frame.settings.dicebearVersion.replace('x', '0.0'),
     }),
     'tsconfig.json': templates['tsconfig.json'],
     'README.md': handlebars.compile(templates['README.md'])({
