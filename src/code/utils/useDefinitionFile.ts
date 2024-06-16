@@ -1,4 +1,3 @@
-export function useDefinitionFile(dicebearVerion: string): boolean
-{
-  return dicebearVerion === '9.x';
+export function useDefinitionFile(dicebearVerion: string): boolean {
+  return dicebearVerion === '10.x';
 }

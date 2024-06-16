@@ -6,7 +6,7 @@
 
   $: backgroundColors = ['', ...Object.keys($state.data.colors)];
 
-  let versions = ['9.x', '8.x', '7.x', '6.x', '5.x'];
+  let versions = ['10.x', '9.x', '8.x', '7.x', '6.x', '5.x'];
 </script>
 
 <div class="form">
