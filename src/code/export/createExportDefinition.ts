@@ -28,7 +28,7 @@ export async function createExportDefinition(exportData: Export) {
         x: typeof offsetX === 'number' ? (offsetX === 0 ? [offsetX] : [offsetX * -1, offsetX]) : undefined,
         y: typeof offsetY === 'number' ? (offsetY === 0 ? [offsetY] : [offsetY * -1, offsetY]) : undefined,
       },
-      values: [],
+      variants: [],
     });
 
     for (const [componentKey, componentValue] of Object.entries(componentGroupValue.collection)) {
@@ -38,7 +38,7 @@ export async function createExportDefinition(exportData: Export) {
       components[index - 1].width = Math.max(components[index - 1].width, componentNode.width);
       components[index - 1].height = Math.max(components[index - 1].height, componentNode.height);
 
-      components[index - 1].values.push({
+      components[index - 1].variants.push({
         name: componentKey,
         content: componentContent,
         default: componentGroupValue.settings.defaults[componentKey] ?? false,

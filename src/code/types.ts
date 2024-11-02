@@ -92,7 +92,7 @@ export type DefinitionComponents = Array<{
     x?: number[];
     y?: number[];
   };
-  values: Array<{
+  variants: Array<{
     name: string;
     default?: boolean;
     content: string;

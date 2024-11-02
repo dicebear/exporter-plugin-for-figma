@@ -1,4 +1,4 @@
-import { DefinitionComponents } from "../types";
+import { DefinitionComponents } from '../types';
 
 export function sortComponents(components: DefinitionComponents) {
   // Sort by name
@@ -8,7 +8,7 @@ export function sortComponents(components: DefinitionComponents) {
 
   // Sort values
   components.forEach((component) => {
-    component.values.sort();
+    component.variants.sort();
   });
 
   return components;
