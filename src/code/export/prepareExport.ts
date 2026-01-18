@@ -15,7 +15,7 @@ export async function prepareExport() {
   await figma.loadAllPagesAsync();
 
   const componentGroups = findAllComponentGroups();
-  const colorGroups = findAllColorGroups();
+  const colorGroups = await findAllColorGroups();
   const frameSelection = getFrameSelection();
   const queue: ChildrenMixin[] = [frameSelection];
 

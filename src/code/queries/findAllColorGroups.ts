@@ -1,9 +1,9 @@
 import { getNameParts } from '../utils/getNameParts';
 import { isSupportedColor } from '../utils/isSupportedColor';
 
-export function findAllColorGroups() {
+export async function findAllColorGroups() {
   const colorGroups = new Map<string, Map<string, PaintStyle>>();
-  const paintStyles = figma.getLocalPaintStyles();
+  const paintStyles = await figma.getLocalPaintStylesAsync();
 
   for (const paintStyle of paintStyles) {
     if (false === isSupportedColor(paintStyle)) {
