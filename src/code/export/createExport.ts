@@ -5,7 +5,7 @@ import { createExportDefinition } from './createExportDefinition';
 import { useDefinitionFile } from '../utils/useDefinitionFile';
 
 export async function createExport() {
-  const exportData = prepareExport();
+  const exportData = await prepareExport();
   const name = kebabCase(exportData.frame.settings.title.replace(/[^a-z0-9\-\_\s]/gi, '').trim()) ?? 'avatar';
 
   if (useDefinitionFile(exportData.frame.settings.dicebearVersion)) {

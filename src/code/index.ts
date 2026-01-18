@@ -11,7 +11,7 @@ figma.showUI(__html__, { width: 720, height: 400 });
 figma.on('selectionchange', () =>
   processTask(async () => ({
     type: 'loaded',
-    data: prepareExport(),
+    data: await prepareExport(),
   }))
 );
 
@@ -22,7 +22,7 @@ figma.ui.onmessage = async (msg) => {
     case 'init':
       processTask(async () => ({
         type: 'loaded',
-        data: prepareExport(),
+        data: await prepareExport(),
       }));
       break;
 

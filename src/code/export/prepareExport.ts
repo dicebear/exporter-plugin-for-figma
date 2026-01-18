@@ -11,7 +11,9 @@ import { getColorsByNode } from '../utils/getColorsByNode';
 import { getNameParts } from '../utils/getNameParts';
 import { findAllInstanceNodes } from '../queries/findAllInstanceNodes';
 
-export function prepareExport() {
+export async function prepareExport() {
+  await figma.loadAllPagesAsync();
+
   const componentGroups = findAllComponentGroups();
   const colorGroups = findAllColorGroups();
   const frameSelection = getFrameSelection();

@@ -9,7 +9,7 @@
   "dependencies": {
     "@babel/plugin-transform-runtime": "^7.24.3",
     "@babel/preset-env": "^7.18.2",
-    "@figma/plugin-typings": "^1.47.0",
+    "@figma/plugin-typings": "^1.122.0",
     "@rollup/plugin-babel": "^5.3.1",
     "@rollup/plugin-commonjs": "^22.0.0",
     "@rollup/plugin-image": "^2.1.1",
