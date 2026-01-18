@@ -3,6 +3,7 @@
   import { state } from '../stores/state';
   import Label from './Label.svelte';
   import Select from './Select.svelte';
+  import { useDefinitionFile } from '../utils/useDefinitionFile';
 
   export let componentGroup;
 
@@ -45,19 +46,21 @@
     />
   </div>
 
-  <div class="section">
-    <Label>Defaults</Label>
-    {#each Object.keys($state.data.components[componentGroup].settings.defaults) as componentName}
-      {#key `components:${componentGroup}:${componentName}`}
-        <Switch
-          bind:checked={$state.data.components[componentGroup].settings
-            .defaults[componentName]}
-        >
-          {componentName}
-        </Switch>
-      {/key}
-    {/each}
-  </div>
+  {#if !useDefinitionFile($state.data.frame.settings.dicebearVersion)}
+    <div class="section">
+      <Label>Defaults</Label>
+      {#each Object.keys($state.data.components[componentGroup].settings.defaults) as componentName}
+        {#key `components:${componentGroup}:${componentName}`}
+          <Switch
+            bind:checked={$state.data.components[componentGroup].settings
+              .defaults[componentName]}
+          >
+            {componentName}
+          </Switch>
+        {/key}
+      {/each}
+    </div>
+  {/if}
 </div>
 
 <style lang="scss">

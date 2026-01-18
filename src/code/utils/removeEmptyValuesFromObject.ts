@@ -3,8 +3,13 @@ export function removeEmptyValuesFromObject(obj: Record<string, any>): Record<st
     if (obj[key] && typeof obj[key] === 'object') {
       removeEmptyValuesFromObject(obj[key]);
     }
-    
-    if (obj[key] === null || obj[key] === '' || obj[key] === undefined || (typeof obj[key] === 'object' && Object.keys(obj[key]).length === 0)) {
+
+    if (
+      obj[key] === null ||
+      obj[key] === '' ||
+      obj[key] === undefined ||
+      (typeof obj[key] === 'object' && Object.keys(obj[key]).length === 0 && Array.isArray(obj[key]) === false)
+    ) {
       delete obj[key];
     }
   });

@@ -82,6 +82,13 @@ export type NodeExportInfo = {
   componentGroup?: string;
 };
 
+export type DefinitionElement = {
+  name: string;
+  value?: string;
+  attributes?: Record<string, string>;
+  children?: DefinitionElement[];
+};
+
 export type DefinitionComponents = Array<{
   name: string;
   width: number;
@@ -94,8 +101,7 @@ export type DefinitionComponents = Array<{
   };
   variants: Array<{
     name: string;
-    default?: boolean;
-    content: string;
+    content: DefinitionElement[];
   }>;
 }>;
 

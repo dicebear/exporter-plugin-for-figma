@@ -8,7 +8,9 @@ export function sortComponents(components: DefinitionComponents) {
 
   // Sort values
   components.forEach((component) => {
-    component.variants.sort();
+    component.variants.sort((a, b) => {
+      return a.name.localeCompare(b.name);
+    });
   });
 
   return components;
