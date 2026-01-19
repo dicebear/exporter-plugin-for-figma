@@ -62,8 +62,12 @@ export async function prepareExport() {
   }
 
   while ((queueItem = queue.pop())) {
-    for (let node of findAllNodesWithColor(queueItem)) {
-      for (let color of getColorsByNode(node).values()) {
+    const allNodesWithColor = await findAllNodesWithColor(queueItem);
+
+    for (let node of allNodesWithColor) {
+      const nodeColors = await getColorsByNode(node);
+
+      for (let color of nodeColors.values()) {
         const colorGroupName = getNameParts(color.name).group;
 
         exportData.colors[colorGroupName].isUsedByComponents = true;

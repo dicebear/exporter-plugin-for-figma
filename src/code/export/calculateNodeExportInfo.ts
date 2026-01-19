@@ -67,9 +67,11 @@ export async function calculateNodeExportInfo(node: ComponentNode | FrameNode) {
       }
     }
 
-    for (const colorNode of findAllNodesWithColor(nodeClone)) {
+    const allNodesWithColor = await findAllNodesWithColor(nodeClone);
+
+    for (const colorNode of allNodesWithColor) {
       const nodeExportInfo = readNodeExportInfo(colorNode);
-      const nodeColors = getColorsByNode(colorNode);
+      const nodeColors = await getColorsByNode(colorNode);
 
       if (nodeColors.has('fill')) {
         nodeExportInfo.fillColorGroup = getNameParts(nodeColors.get('fill')!.name).group;
