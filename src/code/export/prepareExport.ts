@@ -74,12 +74,16 @@ export async function prepareExport() {
       }
     }
 
-    for (let instance of findAllInstanceNodes(queueItem)) {
-      if (null === instance.mainComponent) {
+    const allInstanceNodes = await findAllInstanceNodes(queueItem);
+
+    for (let instance of allInstanceNodes) {
+      const mainComponent = await instance.getMainComponentAsync();
+
+      if (null === mainComponent) {
         continue;
       }
 
-      const componentGroupName = getNameParts(instance.mainComponent.name).group;
+      const componentGroupName = getNameParts(mainComponent.name).group;
 
       if (undefined === exportData.components[componentGroupName]) {
         const settings = getComponentGroupSettings(frameSelection, componentGroupName);

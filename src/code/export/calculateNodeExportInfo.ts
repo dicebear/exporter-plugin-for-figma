@@ -24,8 +24,10 @@ export async function calculateNodeExportInfo(node: ComponentNode | FrameNode) {
     // For the export, clip-path must be set in Figma so that the viewport has the correct height and width.
     nodeClone.clipsContent = true;
 
-    for (const instanceNode of findAllInstanceNodes(nodeClone)) {
-      const mainComponent = instanceNode.mainComponent!;
+    const allInstanceNodes = await findAllInstanceNodes(nodeClone);
+
+    for (const instanceNode of allInstanceNodes) {
+      const mainComponent = (await instanceNode.getMainComponentAsync())!;
 
       const nodeExportInfo = readNodeExportInfo(instanceNode);
 
