@@ -1,10 +1,14 @@
 import type { INode } from 'svgson';
 
-export function mapSvgsonNodes(node: INode, cb: (value: INode) => INode): INode {
+export function mapSvgsonNodes(node: INode, cb: (value: INode) => INode) {
   const result = cb({ ...node });
 
-  if (result.children) {
-    result.children = node.children.map((child) => mapSvgsonNodes(child, cb));
+  for (const key in result.children) {
+    if (false === result.children.hasOwnProperty(key)) {
+      continue;
+    }
+
+    result.children[key] = mapSvgsonNodes(result.children[key], cb);
   }
 
   return result;
