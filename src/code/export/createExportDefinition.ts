@@ -9,7 +9,7 @@ import { convertSvgsonToDefinition } from '../utils/convertSvgsonToDefinition';
 
 export async function createExportDefinition(exportData: Export) {
 
-  const size = (figma.getNodeById(exportData.frame.id) as FrameNode).width;
+  const size = ((await figma.getNodeByIdAsync(exportData.frame.id)) as FrameNode).width;
   const components: DefinitionComponents = [];
   const colors: DefinitionColors = [];
 
@@ -35,7 +35,7 @@ export async function createExportDefinition(exportData: Export) {
     });
 
     for (const [componentKey, componentValue] of Object.entries(componentGroupValue.collection)) {
-      const componentNode = figma.getNodeById(componentValue.id) as ComponentNode;
+      const componentNode = (await figma.getNodeByIdAsync(componentValue.id)) as ComponentNode;
       const componentContent = await createTemplateString(exportData, componentNode);
       const componentContentWithSvg = `<svg>${componentContent}</svg>`;
 
@@ -90,7 +90,7 @@ export async function createExportDefinition(exportData: Export) {
   }
 
   // Create definition
-  const bodyContent = await createTemplateString(exportData, figma.getNodeById(exportData.frame.id) as FrameNode);
+  const bodyContent = await createTemplateString(exportData, (await figma.getNodeByIdAsync(exportData.frame.id)) as FrameNode);
   const bodyContentWithSvg = `<svg>${bodyContent}</svg>`;
 
   return JSON.stringify(

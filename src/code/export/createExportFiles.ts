@@ -70,8 +70,8 @@ export async function createExportFiles(exportData: Export) {
       backgroundColorGroupName: exportData.frame.settings.backgroundColorGroupName,
       components: exportData.components,
       colors: exportData.colors,
-      size: (figma.getNodeById(exportData.frame.id) as FrameNode).width,
-      body: await createTemplateString(exportData, figma.getNodeById(exportData.frame.id) as FrameNode),
+      size: ((await figma.getNodeByIdAsync(exportData.frame.id)) as FrameNode).width,
+      body: await createTemplateString(exportData, (await figma.getNodeByIdAsync(exportData.frame.id)) as FrameNode),
       shapeRendering: exportData.frame.settings.shapeRendering,
       hasPreCreateHook,
       hasPostCreateHook,
@@ -140,7 +140,7 @@ export async function createExportFiles(exportData: Export) {
         continue;
       }
 
-      const componentNode = figma.getNodeById(componentGroup.collection[componentName].id) as ComponentNode;
+      const componentNode = (await figma.getNodeByIdAsync(componentGroup.collection[componentName].id)) as ComponentNode;
 
       components[componentName] = await createTemplateString(exportData, componentNode);
     }
