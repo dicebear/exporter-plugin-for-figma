@@ -83,9 +83,10 @@ export type NodeExportInfo = {
 };
 
 export type DefinitionElement = {
-  name: string;
+  type: string;
+  name?: string;
   value?: string;
-  attributes?: Record<string, string>;
+  attributes?: Record<string, string|{type: string; value: string}>;
   children?: DefinitionElement[];
 };
 
