@@ -2,7 +2,7 @@ import { templates } from '../templates';
 import { createTemplateString } from './createTemplateString';
 import { Export } from '../types';
 import { createExportJsonSchema } from './createExportJsonSchema';
-import handlebars from '../utils/handlebars';
+import { handlebars } from '../utils/templates';
 
 export async function createExportFiles(exportData: Export) {
   const schema = createExportJsonSchema(exportData);

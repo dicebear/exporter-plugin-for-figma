@@ -1,5 +1,5 @@
-import { getNameParts } from '../utils/getNameParts';
-import { isSupportedColor } from '../utils/isSupportedColor';
+import { getNameParts } from '../utils/naming';
+import { isSupportedColor } from '../utils/figma';
 
 export async function findAllColorGroups() {
   const colorGroups = new Map<string, Map<string, PaintStyle>>();

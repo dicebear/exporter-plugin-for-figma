@@ -2,14 +2,13 @@ import rgbHex from 'rgb-hex';
 import { Export, ExportColorGroup, ExportComponentGroup } from '../types';
 import { findAllComponentGroups } from '../queries/findAllComponentGroups';
 import { findAllColorGroups } from '../queries/findAllColorGroups';
-import { getFrameSelection } from '../utils/getFrameSelection';
+import { findAllNodesWithColor } from '../queries/findAllNodesWithColor';
+import { findAllInstanceNodes } from '../queries/findAllInstanceNodes';
 import { getFrameSettings } from '../settings/getFrameSettings';
 import { getComponentGroupSettings } from '../settings/getComponentGroupSettings';
 import { getColorGroupSettings } from '../settings/getColorGroupSettings';
-import { findAllNodesWithColor } from '../queries/findAllNodesWithColor';
-import { getColorsByNode } from '../utils/getColorsByNode';
-import { getNameParts } from '../utils/getNameParts';
-import { findAllInstanceNodes } from '../queries/findAllInstanceNodes';
+import { getFrameSelection, getColorsByNode } from '../utils/figma';
+import { getNameParts } from '../utils/naming';
 
 export async function prepareExport() {
   await figma.loadAllPagesAsync();

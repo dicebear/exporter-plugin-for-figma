@@ -1,9 +1,11 @@
 import { INode } from 'svgson';
-import { NodeExportInfo } from '../types';
-import { decodeNodeNameData } from './decodeNodeNameData';
-import { encodeNodeNameData } from './encodeNodeNameData';
-import { decodeHtmlEntitites } from './decodeHtmlEntities';
-import { encodeHtmlEntities } from './encodeHtmlEntities';
+import { NodeExportInfo } from '../../types';
+import {
+  decodeNodeNameData,
+  encodeNodeNameData,
+  decodeHtmlEntitites,
+  encodeHtmlEntities,
+} from '../encoding';
 
 export function writeNodeExportInfo(node: PageNode | SceneNode | INode, exportInfo: NodeExportInfo | null): void {
   if ('attributes' in node) {

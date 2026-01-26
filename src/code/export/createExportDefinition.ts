@@ -1,11 +1,9 @@
 import { DefinitionColors, DefinitionComponents, Export } from '../types';
-import { removeEmptyValuesFromObject } from '../utils/removeEmptyValuesFromObject';
+import { removeEmptyValuesFromObject, sortComponents, sortColors } from '../utils/data';
 import { createTemplateString } from './createTemplateString';
-import { sortComponents } from '../utils/sortComponents';
-import { sortColors } from '../utils/sortColors';
-import { getLicenseAsText } from '../utils/getLicenseAsText';
+import { getLicenseAsText } from '../utils/templates';
 import { parse } from 'svgson';
-import { convertSvgsonToDefinition } from '../utils/convertSvgsonToDefinition';
+import { convertSvgsonToDefinition } from '../utils/svg';
 
 export async function createExportDefinition(exportData: Export) {
 

@@ -1,4 +1,4 @@
-import { getColorsByNode } from '../utils/getColorsByNode';
+import { getColorsByNode } from '../utils/figma';
 
 export async function findAllNodesWithColor(node?: ChildrenMixin) {
   const nodes = (node ?? figma.root).findAll((v) => 'fillStyleId' in v || 'strokeStyleId' in v);

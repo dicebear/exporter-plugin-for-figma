@@ -1,4 +1,4 @@
-import { DefinitionComponents } from '../types';
+import { DefinitionComponents } from '../../types';
 
 export function sortComponents(components: DefinitionComponents) {
   // Sort by name

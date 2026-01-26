@@ -1,4 +1,4 @@
-import { getNameParts } from './getNameParts';
+import { getNameParts } from '../naming';
 
 export function isSupportedColor(color: PaintStyle): boolean {
   const colorGroupName = getNameParts(color.name).group;

@@ -1,7 +1,6 @@
 import { INode } from 'svgson';
-import { NodeExportInfo } from '../types';
-import { decodeNodeNameData } from './decodeNodeNameData';
-import { decodeHtmlEntitites } from './decodeHtmlEntities';
+import { NodeExportInfo } from '../../types';
+import { decodeNodeNameData, decodeHtmlEntitites } from '../encoding';
 
 export function readNodeExportInfo(node: PageNode | SceneNode | INode): NodeExportInfo {
   const nodeNameData =

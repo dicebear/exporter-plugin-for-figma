@@ -1,4 +1,4 @@
-import { DefinitionColors } from '../types';
+import { DefinitionColors } from '../../types';
 import type { ValuesType } from 'utility-types';
 
 function getDependencies(color: ValuesType<DefinitionColors>): string[] {

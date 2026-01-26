@@ -1,4 +1,4 @@
-import { getNameParts } from '../utils/getNameParts';
+import { getNameParts } from '../utils/naming';
 import { findChildrenComponentNodes } from './findChildrenComponentNodes';
 
 export function findAllComponentGroups() {

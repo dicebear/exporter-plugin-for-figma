@@ -1,4 +1,4 @@
-import { DefinitionElement } from '../types';
+import { DefinitionElement } from '../../types';
 import { INode } from 'svgson';
 
 export function convertSvgsonToDefinition(node: INode): DefinitionElement {

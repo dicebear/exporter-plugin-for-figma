@@ -1,10 +1,12 @@
 import { findAllInstanceNodes } from '../queries/findAllInstanceNodes';
 import { findAllNodesWithColor } from '../queries/findAllNodesWithColor';
-import { fastFindAll } from '../utils/fastFindAll';
-import { getColorsByNode } from '../utils/getColorsByNode';
-import { getNameParts } from '../utils/getNameParts';
-import { readNodeExportInfo } from '../utils/readNodeExportInfo';
-import { writeNodeExportInfo } from '../utils/writeNodeExportInfo';
+import {
+  fastFindAll,
+  getColorsByNode,
+  readNodeExportInfo,
+  writeNodeExportInfo,
+} from '../utils/figma';
+import { getNameParts } from '../utils/naming';
 
 export async function calculateNodeExportInfo(node: ComponentNode | FrameNode) {
   const cloneComponent = figma.createComponent();

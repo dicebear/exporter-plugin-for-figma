@@ -1,5 +1,5 @@
 import { JSONSchema7, JSONSchema7Definition } from 'json-schema';
-import { filterDefaults } from '../utils/filterDefaults';
+import { filterDefaults } from '../utils/data';
 import sortObject from 'sort-object-keys';
 import type { Export } from '../types';
 

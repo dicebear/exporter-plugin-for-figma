@@ -1,10 +1,10 @@
 // @ts-ignore
 import { optimize } from 'svgo/dist/svgo.browser.js';
 import { Export } from '../types';
-import { normalizeName } from '../utils/normalizeName';
+import { normalizeName } from '../utils/naming';
 import { applyNodeExportInfo } from './applyNodeExportInfo';
 import { calculateNodeExportInfo } from './calculateNodeExportInfo';
-import { useDefinitionFile } from '../utils/useDefinitionFile';
+import { useDefinitionFile } from '../utils';
 import { PluginConfig } from 'svgo';
 
 export async function createTemplateString(exportData: Export, node: FrameNode | ComponentNode) {

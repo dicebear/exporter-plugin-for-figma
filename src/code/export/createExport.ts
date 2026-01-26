@@ -2,7 +2,7 @@ import { kebabCase } from 'change-case';
 import { prepareExport } from './prepareExport';
 import { createExportFiles } from './createExportFiles';
 import { createExportDefinition } from './createExportDefinition';
-import { useDefinitionFile } from '../utils/useDefinitionFile';
+import { useDefinitionFile } from '../utils';
 
 export async function createExport() {
   const exportData = await prepareExport();

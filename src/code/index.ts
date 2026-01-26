@@ -1,10 +1,10 @@
-import { getFrameSelection } from './utils/getFrameSelection';
 import { prepareExport } from './export/prepareExport';
-import { processTask } from './utils/processTask';
+import { createExport } from './export/createExport';
 import { setComponentGroupSettings } from './settings/setComponentGroupSettings';
 import { setFrameSettings } from './settings/setFrameSettings';
-import { createExport } from './export/createExport';
 import { setColorGroupSettings } from './settings/setColorGroupSettings';
+import { getFrameSelection } from './utils/figma';
+import { processTask } from './utils';
 
 figma.showUI(__html__, { width: 720, height: 400 });
 

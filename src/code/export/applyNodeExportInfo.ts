@@ -1,8 +1,7 @@
 import { parse, stringify } from 'svgson';
 
-import { readNodeExportInfo } from '../utils/readNodeExportInfo';
-import { writeNodeExportInfo } from '../utils/writeNodeExportInfo';
-import { mapSvgsonNodes } from '../utils/mapSvgsonNodes';
+import { readNodeExportInfo, writeNodeExportInfo } from '../utils/figma';
+import { mapSvgsonNodes } from '../utils/svg';
 
 export async function applyNodeExportInfo(svg: string) {
   const svgNode = mapSvgsonNodes(await parse(svg), (node) => {

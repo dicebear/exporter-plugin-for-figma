@@ -1,4 +1,4 @@
-import type { Export } from '../types';
+import type { Export } from '../../types';
 
 export function getLicenseAsText(exportData: Export): string {
   const licenseName = exportData.frame.settings.licenseName.trim();

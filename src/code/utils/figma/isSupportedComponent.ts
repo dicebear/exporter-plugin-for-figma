@@ -1,4 +1,4 @@
-import { getNameParts } from './getNameParts';
+import { getNameParts } from '../naming';
 
 export function isSupportedComponent(component: ComponentNode) {
   const componentGroup = getNameParts(component.name).group;

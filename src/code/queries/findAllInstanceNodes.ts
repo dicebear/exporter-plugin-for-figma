@@ -1,5 +1,4 @@
-import { fastFindAllAsync } from '../utils/fastFindAll';
-import { isSupportedComponent } from '../utils/isSupportedComponent';
+import { fastFindAllAsync, isSupportedComponent } from '../utils/figma';
 
 export async function findAllInstanceNodes(node?: ChildrenMixin): Promise<InstanceNode[]> {
   return (await fastFindAllAsync((node ?? figma.root).children, async (v) => {
