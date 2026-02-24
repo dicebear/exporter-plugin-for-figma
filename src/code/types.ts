@@ -90,8 +90,7 @@ export type DefinitionElement = {
   children?: DefinitionElement[];
 };
 
-export type DefinitionComponents = Array<{
-  name: string;
+export type DefinitionComponents = Record<string, {
   width: number;
   height: number;
   probability?: number;
@@ -100,14 +99,12 @@ export type DefinitionComponents = Array<{
     x?: number[];
     y?: number[];
   };
-  variants: Array<{
-    name: string;
+  variants: Record<string, {
     content: DefinitionElement[];
   }>;
 }>;
 
-export type DefinitionColors = Array<{
-  name: string;
+export type DefinitionColors = Record<string, {
   values: string[];
   notEqualTo?: string[];
   contrastTo?: string;

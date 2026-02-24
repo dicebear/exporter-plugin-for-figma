@@ -1,17 +1,14 @@
 import { DefinitionColors, DefinitionComponents, Export } from '../types';
 import { removeEmptyValuesFromObject } from '../utils/removeEmptyValuesFromObject';
 import { createTemplateString } from './createTemplateString';
-import { sortComponents } from '../utils/sortComponents';
-import { sortColors } from '../utils/sortColors';
 import { getLicenseAsText } from '../utils/getLicenseAsText';
 import { parse } from 'svgson';
 import { convertSvgsonToDefinition } from '../utils/convertSvgsonToDefinition';
 
 export async function createExportDefinition(exportData: Export) {
-
   const size = ((await figma.getNodeByIdAsync(exportData.frame.id)) as FrameNode).width;
-  const components: DefinitionComponents = [];
-  const colors: DefinitionColors = [];
+  const components: DefinitionComponents = {};
+  const colors: DefinitionColors = {};
 
   // Collect components
   for (const [componentGroupKey, componentGroupValue] of Object.entries(exportData.components)) {
@@ -21,8 +18,7 @@ export async function createExportDefinition(exportData: Export) {
     const offsetX = componentGroupValue.settings.offsetX;
     const offsetY = componentGroupValue.settings.offsetY;
 
-    const index = components.push({
-      name: componentGroupKey,
+    components[componentGroupKey] = {
       width: 0,
       height: 0,
       rotation: typeof rotation === 'number' ? (rotation === 0 ? [rotation] : [rotation * -1, rotation]) : undefined,
@@ -31,21 +27,20 @@ export async function createExportDefinition(exportData: Export) {
         x: typeof offsetX === 'number' ? (offsetX === 0 ? [offsetX] : [offsetX * -1, offsetX]) : undefined,
         y: typeof offsetY === 'number' ? (offsetY === 0 ? [offsetY] : [offsetY * -1, offsetY]) : undefined,
       },
-      variants: [],
-    });
+      variants: {},
+    };
 
     for (const [componentKey, componentValue] of Object.entries(componentGroupValue.collection)) {
       const componentNode = (await figma.getNodeByIdAsync(componentValue.id)) as ComponentNode;
       const componentContent = await createTemplateString(exportData, componentNode);
       const componentContentWithSvg = `<svg>${componentContent}</svg>`;
 
-      components[index - 1].width = Math.max(components[index - 1].width, componentNode.width);
-      components[index - 1].height = Math.max(components[index - 1].height, componentNode.height);
+      components[componentGroupKey].width = Math.max(components[componentGroupKey].width, componentNode.width);
+      components[componentGroupKey].height = Math.max(components[componentGroupKey].height, componentNode.height);
 
-      components[index - 1].variants.push({
-        name: componentKey,
+      components[componentGroupKey].variants[componentKey] = {
         content: convertSvgsonToDefinition(await parse(componentContentWithSvg)).children ?? [],
-      });
+      };
     }
   }
 
@@ -54,10 +49,9 @@ export async function createExportDefinition(exportData: Export) {
     const colorGroup = exportData.colors[exportData.frame.settings.backgroundColorGroupName];
 
     if (colorGroup) {
-      colors.push({
-        name: 'background',
-        values: Object.values(colorGroup.collection).map((v) => v.value),
-      });
+      colors['background'] = {
+        values: Object.values(colorGroup.collection).map((v) => `#${v.value}`),
+      };
     }
   }
 
@@ -70,8 +64,7 @@ export async function createExportDefinition(exportData: Export) {
     const notEqualToCollection = colorGroupValue.settings.notEqualTo;
     const contrastTo = colorGroupValue.settings.contrastTo;
 
-    colors.push({
-      name: colorGroupKey,
+    colors[colorGroupKey] = {
       notEqualTo: Object.entries(notEqualToCollection)
         .filter(([key, value]) => {
           if (key === 'background' || exportData.colors[key]?.isUsedByComponents) {
@@ -85,8 +78,8 @@ export async function createExportDefinition(exportData: Export) {
         contrastTo === 'background' || (contrastTo && exportData.colors[contrastTo]?.isUsedByComponents)
           ? contrastTo
           : undefined,
-      values: Object.values(colorGroupValue.collection).map((v) => v.value),
-    });
+      values: Object.values(colorGroupValue.collection).map((v) => `#${v.value}`),
+    };
   }
 
   // Create definition
@@ -122,8 +115,8 @@ export async function createExportDefinition(exportData: Export) {
         fill: 'none',
         'shape-rendering': exportData.frame.settings.shapeRendering,
       },
-      components: sortComponents(components),
-      colors: sortColors(colors),
+      components: components,
+      colors: colors,
     }),
     undefined,
     2
