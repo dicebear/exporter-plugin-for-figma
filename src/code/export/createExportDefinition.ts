@@ -21,9 +21,9 @@ export async function createExportDefinition(exportData: Export) {
     components[componentGroupKey] = {
       width: 0,
       height: 0,
-      rotation: typeof rotation === 'number' ? (rotation === 0 ? [rotation] : [rotation * -1, rotation]) : undefined,
+      rotate: typeof rotation === 'number' ? (rotation === 0 ? [rotation] : [rotation * -1, rotation]) : undefined,
       probability: typeof probability === 'number' ? probability : undefined,
-      offset: {
+      translate: {
         x: typeof offsetX === 'number' ? (offsetX === 0 ? [offsetX] : [offsetX * -1, offsetX]) : undefined,
         y: typeof offsetY === 'number' ? (offsetY === 0 ? [offsetY] : [offsetY * -1, offsetY]) : undefined,
       },
@@ -39,7 +39,7 @@ export async function createExportDefinition(exportData: Export) {
       components[componentGroupKey].height = Math.max(components[componentGroupKey].height, componentNode.height);
 
       components[componentGroupKey].variants[componentKey] = {
-        content: convertSvgsonToDefinition(await parse(componentContentWithSvg)).children ?? [],
+        elements: convertSvgsonToDefinition(await parse(componentContentWithSvg)).children ?? [],
       };
     }
   }
@@ -106,8 +106,8 @@ export async function createExportDefinition(exportData: Export) {
           url: exportData.frame.settings.source.trim(),
         },
       },
-      body: {
-        content: convertSvgsonToDefinition(await parse(bodyContentWithSvg)).children ?? [],
+      canvas: {
+        elements: convertSvgsonToDefinition(await parse(bodyContentWithSvg)).children ?? [],
         width: size,
         height: size,
       },

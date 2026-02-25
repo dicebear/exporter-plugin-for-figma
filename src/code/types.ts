@@ -94,13 +94,13 @@ export type DefinitionComponents = Record<string, {
   width: number;
   height: number;
   probability?: number;
-  rotation?: number[];
-  offset?: {
+  rotate?: number[];
+  translate?: {
     x?: number[];
     y?: number[];
   };
   variants: Record<string, {
-    content: DefinitionElement[];
+    elements: DefinitionElement[];
   }>;
 }>;
 
