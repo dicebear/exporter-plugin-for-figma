@@ -32,13 +32,15 @@ export function Rail() {
               key={item.mode}
               type="button"
               aria-pressed={active}
-              className="flex flex-col items-center gap-1 outline-none"
+              className="group flex flex-col items-center gap-1 outline-none"
               onClick={() => setMode(item.mode)}
             >
               <span
                 className={cn(
                   'flex size-10 items-center justify-center rounded-lg transition-colors',
-                  active ? 'bg-selected text-foreground' : 'text-icon-secondary hover:bg-accent hover:text-foreground',
+                  active
+                    ? 'bg-selected text-foreground'
+                    : 'text-icon-secondary group-hover:bg-accent group-hover:text-foreground',
                 )}
               >
                 <item.icon className="size-5" strokeWidth={1.75} />
