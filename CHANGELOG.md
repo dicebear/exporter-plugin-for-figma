@@ -121,6 +121,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Keep the opacity of layers below a palette-bound layer in the export. Figma bakes the bound style's alpha into
   `fill-opacity` and `stroke-opacity`, which the palette value already carries, so the export drops the attribute there.
   The layers below it keep their own opacity, written relative to the palette alpha.
+- Read the precision a file from an early plugin version stores. Those versions wrote the field as a string, which the
+  settings reader dropped, so the export ran at the default of three decimals instead of the stored value.
 
 ## [38] - 2026-06-03
 
