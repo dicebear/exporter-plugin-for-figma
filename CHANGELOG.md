@@ -105,6 +105,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
   component per variant, the palettes as color styles linked to the matching layers, the avatar frame, the group
   settings, and the license and creator metadata. Exporting the result reproduces the definition. The plugin skips or
   approximates what Figma cannot represent, CSS animations in `<style>` elements for example, and lists it as warnings.
+  A `use` of the definition's own geometry, the way the export writes an aligned stroke, is imported as a copy of that
+  geometry, Figma's SVG import drops such a `use` once it carries a transform and a clip.
 - Validate definition files before the import starts, so the plugin rejects an invalid file with a list of the
   violations instead of failing halfway through. The check runs through `@dicebear/core`, which also catches broken
   component aliases that the schema alone does not cover.

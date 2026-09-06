@@ -1,5 +1,6 @@
 import { DefinitionAnimation } from '../animation/types';
 import { DefinitionComponentBase, DefinitionComponents, DefinitionElement, DefinitionFile } from '../types';
+import { expandUses } from './expandUses';
 
 export type PreparedRefColor = {
   /** Set when the reference's `color` attribute points to a palette. */
@@ -548,7 +549,10 @@ export function createDefinitionSerializer(
     sawVisible = false;
     anims = [];
 
-    const content = serializeElements(elements, rootContext, scope, refs, false);
+    // A `use` of the tree's own geometry, the way the export writes an
+    // aligned stroke, does not survive Figma's SVG import with its transform
+    // and clip, a copy of the geometry does.
+    const content = serializeElements(expandUses(elements), rootContext, scope, refs, false);
 
     // Content without a single visible element, such as the marker groups and
     // permanently transparent overlays of the CSS animation components, would
