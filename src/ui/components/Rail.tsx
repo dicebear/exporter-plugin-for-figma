@@ -58,7 +58,7 @@ export function Rail() {
             target="_blank"
             rel="noopener"
             aria-label="Open the guide"
-            className={RAIL_ACTION}
+            className={cn(RAIL_ACTION, 'cursor-default')}
           >
             <BookOpen className="size-5" strokeWidth={1.75} />
           </a>
