@@ -836,8 +836,9 @@ async function serializeNode(ctx: Context, node: SceneNode, mode: MaskMode): Pro
 
   const asMask = mode !== false;
 
-  // Figma's export leaves a layer at zero opacity out, and so does this one.
-  if (!asMask && 'opacity' in node && node.opacity === 0) {
+  // Figma's export leaves a layer at zero opacity out, and so does this one,
+  // unless the hooks keep it.
+  if (!asMask && 'opacity' in node && node.opacity === 0 && !ctx.hooks.keepAtZeroOpacity?.(node)) {
     return [];
   }
 

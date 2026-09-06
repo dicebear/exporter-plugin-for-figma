@@ -498,6 +498,12 @@ async function replaceRefPlaceholders(
 
         nameAnimatedLayer(carrier, ref.animations, context);
 
+        // The resting opacity sits on the carrier, next to the tracks that
+        // replace it while the animation plays.
+        if (ref.restingOpacity !== undefined) {
+          carrier.opacity = ref.restingOpacity;
+        }
+
         try {
           applyTracksToNode(carrier, ref.animations, root, context);
         } catch (e: any) {
@@ -509,6 +515,11 @@ async function replaceRefPlaceholders(
         context.warnOnce(
           'Figma animations are not available for your account. The animations of this definition were skipped.',
         );
+
+        // Without the tracks the instance stays at its resting state.
+        if (ref.restingOpacity !== undefined) {
+          instance.opacity = ref.restingOpacity;
+        }
       }
     }
 
@@ -824,6 +835,12 @@ function applyImportedAnimations(
     // The transform origin needs no transport: it is decomposed into native
     // tracks when they are written.
     nameAnimatedLayer(node, anim.animations, context);
+
+    // The resting opacity the markup left out. It is the static state, so it
+    // applies whether or not the tracks can be written.
+    if (anim.restingOpacity !== undefined && 'opacity' in node) {
+      node.opacity = anim.restingOpacity;
+    }
 
     if (!motionAvailable) {
       continue;

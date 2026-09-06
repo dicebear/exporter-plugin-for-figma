@@ -65,6 +65,12 @@ export type SerializeHooks = {
     ctx: SerializeContext,
   ): Promise<ChannelPaint[] | undefined> | ChannelPaint[] | undefined;
   /**
+   * Whether a layer at zero opacity is serialized anyway. Figma's export
+   * leaves such a layer out, and so does this one unless the hook says
+   * otherwise, for a layer whose opacity is only a resting state.
+   */
+  keepAtZeroOpacity?(node: SceneNode): boolean;
+  /**
    * The last word on a layer's elements, called with the placed and filtered
    * output. This is where a wrapper for metadata goes.
    */

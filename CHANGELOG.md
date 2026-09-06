@@ -28,8 +28,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Export for DiceBear 11.x, the line that plays animations.
 - Round-trip animations with Figma Motion. The export turns a layer's keyframe tracks (translation, rotation, scale,
   opacity) into the `animations` blocks of `@dicebear/schema` 2.0, the import writes them back onto the layers. The
-  animation name is the layer name. Whatever one side cannot represent, springs or negative delays for example, is
-  approximated or skipped with a warning. Both directions need Figma's motion API.
+  animation name is the layer name. The layer opacity is the resting state of the still avatar, the keyframes only say
+  how it moves, so a part that shows only while the animation plays sits at zero opacity. Whatever one side cannot
+  represent, springs or negative delays for example, is approximated or skipped with a warning. Both directions need
+  Figma's motion API.
 - Round-trip `currentColor`, reference colors, and opacity of component references.
 - A License page on import. It holds one card with the license line of the definition and the source, designer and
   license rows, linked where the definition names a URL. Definitions without a license get a warning instead.

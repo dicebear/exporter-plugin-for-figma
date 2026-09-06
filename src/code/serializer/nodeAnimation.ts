@@ -17,10 +17,21 @@ export function hasAnimationTracks(node: SceneNode): boolean {
   }
 }
 
+/** Whether a node carries a keyframe track on its opacity. */
+export function animatesOpacity(node: SceneNode): boolean {
+  try {
+    const tracks = node.manualKeyframeTracks as Record<string, { keyframes?: unknown[] }> | undefined;
+
+    return (tracks?.OPACITY?.keyframes?.length ?? 0) > 0;
+  } catch {
+    return false;
+  }
+}
+
 export type NodeAnimation = {
   animations: DefinitionAnimation[];
-  /** The value the opacity track starts at, when it is not 1. */
-  restingOpacity?: number;
+  /** Whether one of the tracks drives the opacity. */
+  animatesOpacity: boolean;
 };
 
 /**
@@ -63,20 +74,6 @@ export function readNodeAnimation(node: SceneNode, warn: (message: string) => vo
     tracks[field] = { keyframes };
   }
 
-  // The definition keeps the resting opacity as an attribute, Figma only in
-  // the track, so it is read back from the first keyframe. A layer resting at
-  // zero cannot live in Figma at all (the SVG export drops it), which is why
-  // the import hands the track the whole job. Nothing in the API promises the
-  // keyframes in timeline order, so the earliest one is picked, not the first
-  // one.
-  const opacityKeyframes = tracks.OPACITY?.keyframes;
-  const firstOpacity = opacityKeyframes?.reduce(
-    (earliest, keyframe) => (keyframe.timelinePosition < earliest.timelinePosition ? keyframe : earliest),
-    opacityKeyframes[0],
-  )?.value;
-  const restingOpacity =
-    firstOpacity?.type === 'FLOAT' && firstOpacity.value !== 1 ? (firstOpacity.value as number) : undefined;
-
   let animation = tracksToDefinitionAnimation(tracks, 0, warn);
 
   if (animation === null) {
@@ -94,5 +91,5 @@ export function readNodeAnimation(node: SceneNode, warn: (message: string) => vo
     animation = { name, ...rest, tracks };
   }
 
-  return { animations: [animation], restingOpacity };
+  return { animations: [animation], animatesOpacity: tracks.OPACITY !== undefined };
 }

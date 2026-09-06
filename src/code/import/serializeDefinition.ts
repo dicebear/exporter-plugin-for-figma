@@ -17,12 +17,16 @@ export type PreparedRef = {
   color?: PreparedRefColor;
   /** Declarative animations carried on the reference, applied to the instance. */
   animations?: DefinitionAnimation[];
+  /** The opacity the reference rests at while its animation drives it. */
+  restingOpacity?: number;
 };
 
 export type PreparedAnim = {
   /** Marker id, becomes the layer name when Figma imports the SVG. */
   id: string;
   animations: DefinitionAnimation[];
+  /** The opacity the element rests at while its animation drives it. */
+  restingOpacity?: number;
 };
 
 export type SerializedSvg = {
@@ -83,16 +87,29 @@ function isZeroOpacity(value: unknown): boolean {
 /**
  * Whether an element's own `opacity` is the resting state of an animation.
  *
- * The track carries that value in Figma, the attribute stays behind: a layer
- * resting at zero opacity does not survive Figma's SVG export, so it would
- * come back from the round trip as a missing element. The export writes the
- * attribute again from the start of the track.
+ * The attribute stays out of the SVG markup and is set on the layer once the
+ * import has created it: an element at zero opacity is not a safe bet in
+ * Figma's SVG import, and the layer opacity is where the export reads the
+ * resting state back from.
  */
 function opacityBelongsToAnimation(element: DefinitionElement): boolean {
   return (
     Array.isArray(element.animations) &&
     element.animations.some((animation) => animation?.tracks?.opacity !== undefined)
   );
+}
+
+/** The resting opacity an animated element carries as a plain number, if any. */
+function restingOpacityOf(element: DefinitionElement): number | undefined {
+  const value = element.attributes?.opacity;
+
+  if (!opacityBelongsToAnimation(element) || value === undefined || isReferenceObject(value)) {
+    return undefined;
+  }
+
+  const opacity = parseFloat(String(value));
+
+  return Number.isFinite(opacity) ? Math.min(Math.max(opacity, 0), 1) : undefined;
 }
 
 function escapeXml(value: string): string {
@@ -409,7 +426,7 @@ export function createDefinitionSerializer(
     const animations =
       Array.isArray(element.animations) && element.animations.length > 0 ? element.animations : undefined;
 
-    refs.push({ id, refName, color, animations });
+    refs.push({ id, refName, color, animations, restingOpacity: restingOpacityOf(element) });
 
     const transformAttribute = transformParts.length > 0 ? ` transform="${escapeXml(transformParts.join(' '))}"` : '';
 
@@ -507,7 +524,7 @@ export function createDefinitionSerializer(
     if (!hidden && Array.isArray(element.animations) && element.animations.length > 0) {
       markerId = `dbimp-anim-${animCounter++}`;
 
-      anims.push({ id: markerId, animations: element.animations });
+      anims.push({ id: markerId, animations: element.animations, restingOpacity: restingOpacityOf(element) });
     }
 
     const markerWrap = markerId !== null && attributes.id !== undefined;

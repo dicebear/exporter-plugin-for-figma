@@ -8,7 +8,7 @@ import { isMotionAvailable } from '../utils/motionSupport';
 import { isSupportedColor } from '../utils/isSupportedColor';
 import { isSupportedComponent } from '../utils/isSupportedComponent';
 import { resolveComponentName } from '../utils/resolveComponentName';
-import { hasAnimationTracks, readNodeAnimation } from './nodeAnimation';
+import { animatesOpacity, hasAnimationTracks, readNodeAnimation } from './nodeAnimation';
 import {
   createCurrentColorProbe,
   createStyleGroupResolver,
@@ -111,6 +111,15 @@ export function createDicebearHooks(options: DicebearHookOptions): SerializeHook
     },
 
     /**
+     * A layer resting at zero opacity is part of the design when its
+     * animation brings it in: the static avatar leaves it out, the animated
+     * one shows it.
+     */
+    keepAtZeroOpacity(node) {
+      return isMotionAvailable(node) && animatesOpacity(node);
+    },
+
+    /**
      * The carrier group for a layer's animation, outside its transform: Figma
      * composes motion outside the layer's resting transform, and the renderer
      * wraps the whole element the same way. URI-encoded so no svgo pass can
@@ -144,15 +153,17 @@ export function createDicebearHooks(options: DicebearHookOptions): SerializeHook
         'data-dbanim': `${animKey++}:${encodeURIComponent(JSON.stringify(animation.animations))}`,
       };
 
-      // The resting state the animation replaces. Without it a layer that only
-      // shows while animating would sit in the static avatar. It stands in for
-      // the layer's own opacity, which would otherwise multiply with it.
-      if (animation.restingOpacity !== undefined) {
-        attributes.opacity = formatNumber(animation.restingOpacity);
+      // The layer's opacity is the resting state of the static avatar, the
+      // track only says how it moves. A layer that shows only while animating
+      // rests at zero, one that fades in from nothing rests at one. The
+      // renderer animates the carrier, so the resting value moves up to it,
+      // where the track replaces it instead of multiplying with it.
+      if (animation.animatesOpacity && 'opacity' in node && node.opacity !== 1) {
+        attributes.opacity = formatNumber(node.opacity);
 
         const [only] = elements;
 
-        if (elements.length === 1 && 'opacity' in node && only.attributes.opacity === formatNumber(node.opacity)) {
+        if (elements.length === 1 && only.type === 'element' && only.attributes.opacity === attributes.opacity) {
           delete only.attributes.opacity;
         }
       }

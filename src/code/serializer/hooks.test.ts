@@ -139,7 +139,7 @@ describe('createDicebearHooks', () => {
     );
   });
 
-  it('lets the resting opacity stand in for the layer opacity instead of multiplying', async () => {
+  it('moves the layer opacity onto the carrier as the resting state instead of multiplying', async () => {
     const rect = layer('RECTANGLE', {
       name: 'blink',
       opacity: 0.5,
@@ -151,6 +151,51 @@ describe('createDicebearHooks', () => {
     expect(out.match(/opacity="/g)).toHaveLength(1);
     expect(out).toContain('<g data-dbanim="0:');
     expect(out).toContain('" opacity="0.5"><rect width="10" height="10" fill="#000000"/></g>');
+  });
+
+  it('keeps a layer that fades in from nothing visible in the static avatar', async () => {
+    const rect = layer('RECTANGLE', {
+      name: 'comet',
+      fills: [{ type: 'SOLID', color: { r: 0, g: 0, b: 0 } }],
+      manualKeyframeTracks: opacityTrack(0, 1),
+    });
+    const out = await svg([rect]);
+
+    expect(out).toContain('<g data-dbanim="0:');
+    expect(out).not.toContain('opacity=');
+  });
+
+  it('hides a layer that rests at zero and only shows while animating', async () => {
+    const rect = layer('RECTANGLE', {
+      name: 'flash',
+      opacity: 0,
+      fills: [{ type: 'SOLID', color: { r: 0, g: 0, b: 0 } }],
+      manualKeyframeTracks: opacityTrack(1, 0),
+    });
+    const out = await svg([rect]);
+
+    expect(out.match(/opacity="/g)).toHaveLength(1);
+    expect(out).toContain('" opacity="0"><rect width="10" height="10" fill="#000000"/></g>');
+  });
+
+  it('leaves the layer opacity in place when the animation does not drive it', async () => {
+    const rect = layer('RECTANGLE', {
+      name: 'hop',
+      opacity: 0.5,
+      fills: [{ type: 'SOLID', color: { r: 0, g: 0, b: 0 } }],
+      manualKeyframeTracks: {
+        TRANSLATION_Y: {
+          keyframes: [
+            { timelinePosition: 0, value: { type: 'FLOAT', value: 0 } },
+            { timelinePosition: 1, value: { type: 'FLOAT', value: 4 } },
+          ],
+        },
+      },
+    });
+    const out = await svg([rect]);
+
+    expect(out).toContain('<g data-dbanim="0:');
+    expect(out).toContain('<rect width="10" height="10" fill="#000000" opacity="0.5"/></g>');
   });
 
   it('exports an animated mask static and says so', async () => {
