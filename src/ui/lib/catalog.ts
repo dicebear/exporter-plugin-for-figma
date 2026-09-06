@@ -1,5 +1,5 @@
 import { deflateSync, inflateSync, strFromU8, strToU8 } from 'fflate';
-import { cacheGet, cachePut, isStale, type CachedDefinition } from '@shared/storage/definitionCache';
+import { cacheGet, cachePrune, cachePut, isStale, type CachedDefinition } from '@shared/storage/definitionCache';
 import { fetchDefinitionText, fetchThumbnail } from './api';
 import { pluginStorage } from './storage';
 
@@ -88,10 +88,17 @@ export async function writeCatalogIndex(index: CatalogIndex): Promise<void> {
   }
 }
 
-const definitions = new Map<string, { id: string; definition: unknown }>();
-
 function decode(cached: CachedDefinition): { id: string; definition: unknown } {
   return { id: cached.id, definition: unpackDefinition(cached.bytes) };
+}
+
+let pruned: Promise<void> | null = null;
+
+/** Reclaims what a crash between the two cache writes left behind, once per session. */
+function pruneOnce(): Promise<void> {
+  pruned ??= cachePrune(pluginStorage).catch(() => undefined);
+
+  return pruned;
 }
 
 function idOf(definition: unknown, name: string): string {
@@ -101,20 +108,13 @@ function idOf(definition: unknown, name: string): string {
 }
 
 /**
- * The definition of a collection style: from memory, then the store, then the
- * API. A stale copy is refreshed when the API answers and kept when it does
- * not.
+ * The definition of a collection style: from the store, then the API. A stale
+ * copy is refreshed when the API answers and kept when it does not.
  */
 export async function loadCollectionDefinition(
   name: string,
   refresh = false,
 ): Promise<{ id: string; definition: unknown }> {
-  const known = definitions.get(name);
-
-  if (known && !refresh) {
-    return known;
-  }
-
   let cached: CachedDefinition | null = null;
 
   try {
@@ -123,36 +123,26 @@ export async function loadCollectionDefinition(
     cached = null;
   }
 
-  const fromCache = () => {
-    const value = decode(cached!);
-
-    definitions.set(name, value);
-
-    return value;
-  };
-
   if (cached && !refresh && !isStale(cached)) {
-    return fromCache();
+    return decode(cached);
   }
 
-  let text: string;
+  let definition: unknown;
 
   try {
-    text = await fetchDefinitionText(name, refresh || cached !== null);
+    definition = JSON.parse(await fetchDefinitionText(name, refresh || cached !== null)) as unknown;
   } catch (error) {
     if (cached) {
-      return fromCache();
+      return decode(cached);
     }
 
     throw error;
   }
 
-  const definition = JSON.parse(text) as unknown;
   const value = { id: idOf(definition, name), definition };
 
-  definitions.set(name, value);
-
   try {
+    await pruneOnce();
     await cachePut(pluginStorage, name, { id: value.id, bytes: packDefinition(definition), fetchedAt: Date.now() });
   } catch {
     // Not cached, still usable.

@@ -3,12 +3,13 @@ import { runFillJob, runInsertJob } from '@/lib/render/jobRunner';
 import type { StyleEntry } from '@/lib/render/styleRegistry';
 import { useAppStore } from '@/store';
 import { useGenerateStore } from '@/store/generate';
+import { usableTargets } from './targets';
 
 /** Starts the job the footer button describes and keeps the store informed. */
 export async function runGenerate(entry: StyleEntry, mode: 'fill' | 'insert', seeds: string[]): Promise<void> {
   const generate = useGenerateStore.getState();
   const controller = new AbortController();
-  const targets = useAppStore.getState().selection.targets.filter((target) => !target.locked);
+  const targets = usableTargets(useAppStore.getState().selection.targets);
   const common = {
     entry,
     overrides: generate.overrides,

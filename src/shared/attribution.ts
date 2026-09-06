@@ -41,11 +41,8 @@ export function attributionKind(meta: StyleMeta): 'own-work' | 'port' | 'remix' 
   return 'remix';
 }
 
-/**
- * The credit as text runs, some of them links. `unverified` marks what an
- * uploaded definition says about itself as the uploader's claim.
- */
-export function attributionParts(meta: StyleMeta, options: { unverified?: boolean } = {}): AttributionPart[] {
+/** The credit as text runs, some of them links. */
+export function attributionParts(meta: StyleMeta): AttributionPart[] {
   const kind = attributionKind(meta);
   const parts: AttributionPart[] = [];
   const license = meta.license.name ? { text: meta.license.name, url: meta.license.url || undefined } : null;
@@ -69,15 +66,5 @@ export function attributionParts(meta: StyleMeta, options: { unverified?: boolea
     parts.push({ text: ', licensed under ' }, license);
   }
 
-  if (options.unverified) {
-    parts.push({ text: ' (as stated by the creator; DiceBear has not verified this)' });
-  }
-
   return parts;
-}
-
-export function attributionText(meta: StyleMeta, options: { unverified?: boolean } = {}): string {
-  return attributionParts(meta, options)
-    .map((part) => part.text)
-    .join('');
 }

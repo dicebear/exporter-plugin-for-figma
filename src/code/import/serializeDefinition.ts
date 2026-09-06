@@ -99,7 +99,7 @@ function escapeXml(value: string): string {
   return value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
-export function expandHex(hex: string): string | null {
+function expandHex(hex: string): string | null {
   const value = hex.replace('#', '').toLowerCase();
 
   if (value.length === 3 || value.length === 4) {

@@ -31,6 +31,7 @@ const definition = {
     },
   },
   colors: {
+    background: { values: ['#b6e3f4', '#c0aede'] },
     skin: { values: ['#ffdbac', '#8d5524'] },
   },
 };
@@ -45,6 +46,7 @@ describe('groupOptions', () => {
     expect(byId.components).toEqual(['faceVariant', 'faceProbability', 'hatVariant', 'hatProbability']);
     expect(byId.colors).toEqual(['backgroundColor', 'skinColor']);
     expect(byId.advanced).toBeUndefined();
+    expect(groups.find((g) => g.id === 'colors')!.fields[0].palette).toEqual(['b6e3f4', 'c0aede']);
     expect(groups.find((g) => g.id === 'colors')!.fields[1].palette).toEqual(['ffdbac', '8d5524']);
   });
 

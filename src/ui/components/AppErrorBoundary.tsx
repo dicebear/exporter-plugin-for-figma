@@ -1,4 +1,5 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react';
+import { postEvent } from '@/lib/bridge';
 import { ErrorState } from './ErrorState';
 
 type Props = { children: ReactNode };
@@ -21,8 +22,11 @@ export class AppErrorBoundary extends Component<Props, State> {
       return (
         <ErrorState
           message={`The plugin window ran into an error: ${this.state.error.message}`}
-          actionLabel="Reload"
-          onAction={() => window.location.reload()}
+          actionLabel="Try again"
+          onAction={() => {
+            this.setState({ error: null });
+            postEvent({ type: 'ui:ready' });
+          }}
         />
       );
     }

@@ -3,6 +3,7 @@ import { useStyleEntryFor, type StyleEntryState } from '@/hooks/useStyleEntry';
 import { useAppStore } from '@/store';
 import { useGenerateStore } from '@/store/generate';
 import { resolveSeeds } from './seeds';
+import { usableTargets } from './targets';
 
 /** The style the Generate tab works with. */
 export function useStyleEntry(): StyleEntryState {
@@ -25,11 +26,11 @@ export function useSeeds(mode: 'fill' | 'insert'): string[] {
 
   // Only the names of the usable layers matter here, so a selection event
   // that changes nothing else keeps the seeds, and with them the previews.
-  const layerNames = useMemo(() => targets.filter((target) => !target.locked).map((target) => target.name), [targets]);
+  const layerNames = useMemo(() => usableTargets(targets).map((target) => target.name), [targets]);
   const namesKey = layerNames.join('\n');
 
   return useMemo(
-    () => resolveSeeds(strategy, { count: mode === 'fill' ? layerNames.length : count, layerNames }),
+    () => resolveSeeds(strategy, { count: mode === 'fill' ? layerNames.length : count, layerNames, mode }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [strategy, count, mode, namesKey],
   );

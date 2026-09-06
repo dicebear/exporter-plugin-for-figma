@@ -48,7 +48,7 @@ export function Rail() {
       <Tooltip>
         <TooltipTrigger asChild>
           <a
-            href="https://www.dicebear.com/create-styles/with-figma/"
+            href="https://www.dicebear.com/integrations/figma/"
             target="_blank"
             rel="noopener"
             aria-label="Open the guide"

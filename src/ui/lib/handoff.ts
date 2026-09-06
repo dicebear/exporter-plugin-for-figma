@@ -94,7 +94,7 @@ export function codeSnippet(record: AvatarRecord): string {
   const importLine =
     source.kind === 'collection'
       ? `import ${name} from '@dicebear/styles/${source.name}.json' with { type: 'json' };`
-      : `// The definition file you uploaded to the plugin's library.\nimport ${name} from './${source.title}.json' with { type: 'json' };`;
+      : `// The definition file you uploaded to the plugin's library.\nimport ${name} from ${literal(`./${source.title}.json`, '')} with { type: 'json' };`;
   const options = literal({ seed: record.seed, ...record.overrides }, '');
 
   return [

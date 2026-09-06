@@ -164,15 +164,27 @@ export async function runChunk(params: ChunkParams): Promise<{ done: number }> {
   return { done: job.done };
 }
 
+function onCurrentPage(node: SceneNode): boolean {
+  let ancestor: BaseNode | null = node.parent;
+
+  while (ancestor && ancestor.type !== 'PAGE') {
+    ancestor = ancestor.parent;
+  }
+
+  return ancestor === figma.currentPage;
+}
+
 export function endJob(params: EndParams): Result {
   const job = requireJob(params.jobId);
 
   current = null;
   figma.commitUndo();
 
-  if (job.created.length > 0) {
-    figma.currentPage.selection = job.created;
-    figma.viewport.scrollAndZoomIntoView(job.created);
+  const alive = job.created.filter((node) => !node.removed && node.parent !== null && onCurrentPage(node));
+
+  if (alive.length > 0) {
+    figma.currentPage.selection = alive;
+    figma.viewport.scrollAndZoomIntoView(alive);
   }
 
   const count = job.applied.length;

@@ -1,15 +1,14 @@
 /**
  * Selection events the plugin's own work causes are held back: an import
  * changes pages and the selection itself, a generate job selects what it
- * created. Whoever holds a suppression releases it, and the change the
- * outside missed is reported once, at the end.
+ * created. Whoever holds a suppression releases it, and the last release
+ * schedules one report of where the selection ended up.
  */
 
 let holders = 0;
-let missed = false;
 let report: () => void = () => {};
 
-/** Called once at startup with the way to report a selection change. */
+/** Called once at startup with the way to schedule a selection report. */
 export function onSelectionChange(handler: () => void): void {
   report = handler;
 }
@@ -17,11 +16,6 @@ export function onSelectionChange(handler: () => void): void {
 /** True while some task holds a suppression. */
 export function selectionEventsSuppressed(): boolean {
   return holders > 0;
-}
-
-/** Notes a change while suppressed, so the release can report it. */
-export function noteSelectionChange(): void {
-  missed = true;
 }
 
 /** Holds selection events back until the returned function is called. */
@@ -38,8 +32,7 @@ export function suppressSelectionEvents(): () => void {
     released = true;
     holders--;
 
-    if (holders === 0 && missed) {
-      missed = false;
+    if (holders === 0) {
       report();
     }
   };

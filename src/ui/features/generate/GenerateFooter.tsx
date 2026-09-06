@@ -5,6 +5,7 @@ import type { StyleEntry } from '@/lib/render/styleRegistry';
 import { useAppStore } from '@/store';
 import { useGenerateStore } from '@/store/generate';
 import { runGenerate } from './lib/runGenerate';
+import { usableTargets } from './lib/targets';
 
 type Props = {
   entry: StyleEntry | null;
@@ -16,7 +17,7 @@ export function GenerateFooter({ entry, mode, seeds }: Props) {
   const targets = useAppStore((state) => state.selection.targets);
   const job = useGenerateStore((state) => state.job);
   const lastResult = useGenerateStore((state) => state.lastResult);
-  const usable = targets.filter((target) => !target.locked);
+  const usable = usableTargets(targets);
   const count = mode === 'fill' ? usable.length : seeds.length;
 
   let reason: string | null = null;

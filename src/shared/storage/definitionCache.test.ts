@@ -54,6 +54,38 @@ describe('definitionCache', () => {
     expect(await store.keys()).toEqual([CACHE_INDEX_KEY]);
   });
 
+  it('keeps both index entries when a get and a put overlap', async () => {
+    const store = new MemoryKeyValueStore();
+    const settle = () => new Promise<void>((resolve) => setTimeout(resolve, 0));
+
+    // The bridge waits a round trip and hands back copies, not the objects.
+    const copy = (key: string, value: unknown) =>
+      key === CACHE_INDEX_KEY && value !== undefined ? JSON.parse(JSON.stringify(value)) : value;
+
+    store.get = async (key) => {
+      await settle();
+
+      return copy(key, store.data.get(key));
+    };
+    store.set = async (key, value) => {
+      await settle();
+      store.data.set(key, copy(key, value));
+    };
+
+    await cachePut(store, 'a', def(10), 10_000, 1);
+
+    const hour = 60 * 60 * 1000;
+
+    await Promise.all([cacheGet(store, 'a', hour + 2), cachePut(store, 'b', def(10), 10_000, hour + 3)]);
+
+    const index = (await store.get(CACHE_INDEX_KEY)) as { entries: { key: string; lastUsed: number }[] };
+
+    expect(index.entries.map((e) => [e.key, e.lastUsed])).toEqual([
+      [cacheKey('a'), hour + 2],
+      [cacheKey('b'), hour + 3],
+    ]);
+  });
+
   it('knows when a definition is stale', () => {
     expect(isStale({ id: 'x', bytes: bytes(1), fetchedAt: 0 }, 1000)).toBe(false);
     expect(isStale({ id: 'x', bytes: bytes(1), fetchedAt: 0 }, 8 * 24 * 3600 * 1000)).toBe(true);

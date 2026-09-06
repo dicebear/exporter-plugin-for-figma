@@ -7,7 +7,7 @@ import { FieldRow } from '@/components/fields/FieldRow';
 import { RangeField } from '@/components/fields/RangeField';
 import { Spinner } from '@/components/Spinner';
 import { request } from '@/lib/bridge';
-import { useAppStore, type ComponentTab } from '@/store';
+import { flushSettingsPosts, useAppStore, type ComponentTab } from '@/store';
 import { AliasBanner, Banner } from './AliasBanner';
 import { TagsTable } from './TagsTable';
 import { VariantTable } from './VariantTable';
@@ -48,6 +48,7 @@ export function ComponentGroupPanel({ group }: { group: string }) {
 
   const fetchNormalize = () => {
     clearNormalizeError(group);
+    flushSettingsPosts();
     request('normalize:prepare', { group })
       .then(setNormalize)
       .catch((error: Error) => setNormalizeError(group, error.message));

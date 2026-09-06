@@ -2,12 +2,13 @@ import { useAppStore } from '@/store';
 import { useGenerateStore } from '@/store/generate';
 import { Section } from '@/components/Section';
 import { Segmented } from '@/components/Segmented';
+import { usableTargets } from '../lib/targets';
 
 /** Fill the selection or insert new avatars, with the selection spelled out. */
 export function TargetSection({ mode }: { mode: 'fill' | 'insert' }) {
   const selection = useAppStore((state) => state.selection);
   const setModeOverride = useGenerateStore((state) => state.setModeOverride);
-  const usable = selection.targets.filter((target) => !target.locked);
+  const usable = usableTargets(selection.targets);
   const locked = selection.targets.length - usable.length;
   const skipped = selection.selectedCount - selection.targets.length;
 

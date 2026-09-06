@@ -104,19 +104,30 @@ function Library({ onPick }: { onPick: (key: string) => void }) {
     const current = lib.items.find((item) => item.id === renaming.id)?.title;
 
     setRenaming(null);
+    setError(null);
 
     if (title && title !== current) {
-      setLibrary({ items: await library.rename(renaming.id, title) });
-      forgetStyle(libraryKey(renaming.id));
+      try {
+        setLibrary({ items: await library.rename(renaming.id, title) });
+        forgetStyle(libraryKey(renaming.id));
+      } catch (e) {
+        setError(errorMessage(e));
+      }
     }
   };
 
   const remove = async (id: string) => {
-    setLibrary({ items: await library.remove(id) });
-    forgetStyle(libraryKey(id));
+    setError(null);
 
-    if (styleKey === libraryKey(id)) {
-      selectStyle(null);
+    try {
+      setLibrary({ items: await library.remove(id) });
+      forgetStyle(libraryKey(id));
+
+      if (styleKey === libraryKey(id)) {
+        selectStyle(null);
+      }
+    } catch (e) {
+      setError(errorMessage(e));
     }
   };
 

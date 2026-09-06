@@ -1,7 +1,8 @@
+import { errorMessage } from '@shared/errors';
 import { hasPendingChanges } from '@shared/normalize';
 import { Button } from '@/components/ui/button';
 import { request } from '@/lib/bridge';
-import { useAppStore } from '@/store';
+import { flushSettingsPosts, useAppStore } from '@/store';
 import { exportDefinition } from './lib/exportDownload';
 
 export function StyleFooter() {
@@ -27,10 +28,12 @@ export function StyleFooter() {
       return;
     }
 
+    flushSettingsPosts();
+
     try {
       setNormalize(await request('normalize:apply', { group: normalizeGroup }));
     } catch (error) {
-      setNormalizeError(normalizeGroup, error instanceof Error ? error.message : String(error));
+      setNormalizeError(normalizeGroup, errorMessage(error));
     }
   };
 

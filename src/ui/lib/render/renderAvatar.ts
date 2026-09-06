@@ -7,20 +7,23 @@ type Render = { svg: string; uri: string | null };
 const MEMO_LIMIT = 300;
 const memo = new Map<string, Render>();
 
-function remember(key: string, svg: string): Render {
-  if (memo.size >= MEMO_LIMIT) {
-    const oldest = memo.keys().next().value;
+/** Sets a key and drops the oldest one once the map holds `limit` entries. */
+export function boundedSet<K, V>(map: Map<K, V>, key: K, value: V, limit: number): V {
+  if (!map.has(key) && map.size >= limit) {
+    const oldest = map.keys().next().value;
 
     if (oldest !== undefined) {
-      memo.delete(oldest);
+      map.delete(oldest);
     }
   }
 
-  const render = { svg, uri: null };
+  map.set(key, value);
 
-  memo.set(key, render);
+  return value;
+}
 
-  return render;
+function remember(key: string, svg: string): Render {
+  return boundedSet(memo, key, { svg, uri: null }, MEMO_LIMIT);
 }
 
 function render(entry: StyleEntry, seed: string, size: number, overrides: Overrides): Render {

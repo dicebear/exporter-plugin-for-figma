@@ -24,6 +24,7 @@ const EMPTY_SELECTION: SelectionInfo = { targets: [], selectedCount: 0, bounds: 
 const SETTINGS_DEBOUNCE_MS = 150;
 
 const settingsTimers = new Map<string, ReturnType<typeof setTimeout>>();
+const settingsPosts = new Map<string, () => void>();
 
 function schedulePost(key: string, post: () => void): void {
   const timer = settingsTimers.get(key);
@@ -32,13 +33,33 @@ function schedulePost(key: string, post: () => void): void {
     clearTimeout(timer);
   }
 
+  settingsPosts.set(key, post);
+
   settingsTimers.set(
     key,
     setTimeout(() => {
       settingsTimers.delete(key);
+      settingsPosts.delete(key);
       post();
     }, SETTINGS_DEBOUNCE_MS),
   );
+}
+
+/** Sends every settings change still waiting, before the sandbox reads the frame or the window closes. */
+export function flushSettingsPosts(): void {
+  const pending = [...settingsPosts.entries()];
+
+  for (const [key, post] of pending) {
+    const timer = settingsTimers.get(key);
+
+    if (timer !== undefined) {
+      clearTimeout(timer);
+    }
+
+    settingsTimers.delete(key);
+    settingsPosts.delete(key);
+    post();
+  }
 }
 
 export type StyleState = {
@@ -115,8 +136,9 @@ export const useAppStore = create<AppState>((set, get) => ({
   },
   inspectActiveId: null,
 
+  // A relaunch button always opens the Generate tab, which acts on its record.
   init: ({ prefs, selection, command, relaunch }) =>
-    set({ ready: true, prefs, mode: prefs.mode, selection, command, relaunch }),
+    set({ ready: true, prefs, mode: command ? 'generate' : prefs.mode, selection, command, relaunch }),
 
   setMode: (mode) => {
     if (get().mode === mode) {
@@ -143,11 +165,16 @@ export const useAppStore = create<AppState>((set, get) => ({
   setStyleStatus: (status, message = '') =>
     set((state) => ({ style: { ...state.style, status, message }, progress: null })),
 
-  setStyleData: (data) =>
+  setStyleData: (data) => {
+    for (const group of Object.values(data.components)) {
+      sanitizeComponentSettings(group.settings);
+    }
+
     set((state) => ({
       progress: null,
       style: { ...state.style, status: 'loaded', message: '', data, normalize: {}, normalizeErrors: {} },
-    })),
+    }));
+  },
 
   setStage: (kind, name = '') => set((state) => ({ style: { ...state.style, stage: { kind, name } } })),
 
@@ -195,7 +222,7 @@ export const useAppStore = create<AppState>((set, get) => ({
     set((state) => ({
       style: { ...state.style, data: { ...data, frame: { ...data.frame, settings } } },
     }));
-    schedulePost('frame', () => postEvent({ type: 'settings:frame:set', settings }));
+    schedulePost('frame', () => postEvent({ type: 'settings:frame:set', frameId: data.frame.id, settings }));
   },
 
   updateComponentSettings: (group, update) => {
@@ -216,7 +243,9 @@ export const useAppStore = create<AppState>((set, get) => ({
         data: { ...data, components: { ...data.components, [group]: { ...entry, settings } } },
       },
     }));
-    schedulePost(`component:${group}`, () => postEvent({ type: 'settings:component:set', group, settings }));
+    schedulePost(`component:${group}`, () =>
+      postEvent({ type: 'settings:component:set', frameId: data.frame.id, group, settings }),
+    );
   },
 
   updateColorSettings: (group, update) => {
@@ -232,6 +261,8 @@ export const useAppStore = create<AppState>((set, get) => ({
     set((state) => ({
       style: { ...state.style, data: { ...data, colors: { ...data.colors, [group]: { ...entry, settings } } } },
     }));
-    schedulePost(`color:${group}`, () => postEvent({ type: 'settings:color:set', group, settings }));
+    schedulePost(`color:${group}`, () =>
+      postEvent({ type: 'settings:color:set', frameId: data.frame.id, group, settings }),
+    );
   },
 }));

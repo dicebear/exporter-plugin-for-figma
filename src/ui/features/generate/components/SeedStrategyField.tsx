@@ -40,6 +40,8 @@ export function SeedStrategyField({ mode }: { mode: 'fill' | 'insert' }) {
   };
 
   const options = KINDS.filter((kind) => mode === 'fill' || kind.value !== 'layerNames');
+  // Inserting has no layers to name, so a stored layer-name strategy shows and acts as random.
+  const shownKind = mode === 'insert' && seeds.kind === 'layerNames' ? 'random' : seeds.kind;
   const listCount = seeds.kind === 'list' ? listSeeds(seeds.text).length : 0;
 
   return (
@@ -68,10 +70,10 @@ export function SeedStrategyField({ mode }: { mode: 'fill' | 'insert' }) {
       )}
       <label className="flex items-center gap-2">
         <span className="flex-1">Seeds</span>
-        <SimpleSelect className="w-[136px]" value={seeds.kind} options={options} onChange={(kind) => setKind(kind!)} />
+        <SimpleSelect className="w-[136px]" value={shownKind} options={options} onChange={(kind) => setKind(kind!)} />
       </label>
-      {seeds.kind === 'random' && <p className="text-muted-foreground">Every avatar gets a seed of its own.</p>}
-      {seeds.kind === 'layerNames' && (
+      {shownKind === 'random' && <p className="text-muted-foreground">Every avatar gets a seed of its own.</p>}
+      {shownKind === 'layerNames' && (
         <p className="text-muted-foreground">Each layer is drawn from its name. Rename the layer to change the face.</p>
       )}
       {seeds.kind === 'list' && (

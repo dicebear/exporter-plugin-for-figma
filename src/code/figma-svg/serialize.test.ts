@@ -366,6 +366,32 @@ describe('serializeTree', () => {
     );
   });
 
+  it("grows a container filter by the reach of a child's own effects", async () => {
+    const child = shape('RECTANGLE', {
+      relativeTransform: translate(10, 10),
+      fills: [solid(0, 0, 0)],
+      effects: [
+        {
+          type: 'DROP_SHADOW',
+          color: { r: 0, g: 0, b: 0, a: 1 },
+          offset: { x: 30, y: 30 },
+          radius: 10,
+          visible: true,
+        },
+      ],
+    });
+    const frame = container('FRAME', [child], {
+      width: 50,
+      height: 50,
+      effects: [{ type: 'LAYER_BLUR', radius: 2, visible: true }],
+    });
+
+    // Child 10..20, its shadow reaches 45 to -35..65, the frame's blur adds 3.
+    expect(await svg(container('FRAME', [frame]))).toContain(
+      '<filter id="filter1" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse" x="-38" y="-38" width="106" height="106">',
+    );
+  });
+
   it("sizes a group filter in the parent's coordinates, where the group's children are placed", async () => {
     const child = shape('RECTANGLE', { relativeTransform: translate(-5, -5), fills: [solid(0, 0, 0)] });
     const group = container('GROUP', [child], {

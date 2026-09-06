@@ -20,7 +20,7 @@ export function ErrorState({ message, actionLabel, onAction }: Props) {
         )}
         <a
           className="text-brand-foreground hover:underline"
-          href="https://www.dicebear.com/create-styles/with-figma/"
+          href="https://www.dicebear.com/integrations/figma/"
           target="_blank"
           rel="noopener"
         >

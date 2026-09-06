@@ -14,14 +14,20 @@ export const INSPECT_PREVIEW_SIZE = 64;
 const Row = memo(function Row({ item, active }: { item: InspectItem; active: boolean }) {
   const setActive = useAppStore((state) => state.setInspectActive);
   const { entry } = useStyleEntryFor(styleKeyOf(item.record.source));
+  let src: string | null = null;
+
+  if (entry) {
+    try {
+      src = renderDataUri(entry, item.record.seed, INSPECT_PREVIEW_SIZE, item.record.overrides);
+    } catch {
+      src = null;
+    }
+  }
 
   return (
     <SidebarItem active={active} className="h-9 gap-2 px-1.5" onClick={() => setActive(item.id)}>
-      {entry ? (
-        <AvatarPreview
-          src={renderDataUri(entry, item.record.seed, INSPECT_PREVIEW_SIZE, item.record.overrides)}
-          className="size-6 shrink-0"
-        />
+      {src ? (
+        <AvatarPreview src={src} className="size-6 shrink-0" />
       ) : (
         <span className="size-6 shrink-0 rounded-md bg-muted" />
       )}

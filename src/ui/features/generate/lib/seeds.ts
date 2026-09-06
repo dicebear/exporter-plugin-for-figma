@@ -141,8 +141,15 @@ export function listSeeds(text: string): string[] {
  * The seeds a job renders, in target order. For fills `count` is the number
  * of targets, for inserts the number the user asked for.
  */
-export function resolveSeeds(strategy: SeedStrategy, context: { count: number; layerNames: string[] }): string[] {
+export function resolveSeeds(
+  strategy: SeedStrategy,
+  context: { count: number; layerNames: string[]; mode?: 'fill' | 'insert' },
+): string[] {
   const count = Math.max(0, Math.floor(context.count));
+
+  if (strategy.kind === 'layerNames' && context.mode === 'insert') {
+    return randomSeeds(0, count);
+  }
 
   switch (strategy.kind) {
     case 'random': {

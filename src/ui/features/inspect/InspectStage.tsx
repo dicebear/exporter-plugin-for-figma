@@ -30,15 +30,21 @@ export function InspectStage({ item }: { item: InspectItem }) {
   const snippet = useMemo(() => codeSnippet(record), [record]);
   const version = stylesVersion(record.source);
   const overrides = Object.entries(record.overrides);
+  let src: string | null = null;
+
+  if (entry) {
+    try {
+      src = renderDataUri(entry, record.seed, INSPECT_PREVIEW_SIZE, record.overrides);
+    } catch {
+      src = null;
+    }
+  }
 
   return (
     <div className="p-4">
       <div className="mb-5 flex items-start gap-3">
-        {entry ? (
-          <AvatarPreview
-            src={renderDataUri(entry, record.seed, INSPECT_PREVIEW_SIZE, record.overrides)}
-            className="size-16 shrink-0 rounded-xl"
-          />
+        {src ? (
+          <AvatarPreview src={src} className="size-16 shrink-0 rounded-xl" />
         ) : (
           <span className="flex size-16 shrink-0 items-center justify-center rounded-xl bg-muted">
             {status === 'loading' && <Spinner />}

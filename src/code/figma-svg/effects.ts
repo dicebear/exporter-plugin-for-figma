@@ -57,6 +57,40 @@ export type FilterBox = {
 const MIN_REGION = 1;
 
 /**
+ * How far the visible effects paint beyond the layer's box, per axis. A drop
+ * shadow reaches its blur, its spread and its offset, a layer blur its blur
+ * alone. Inner shadows and background blurs stay inside the layer. Only the
+ * first layer blur counts, the filter exports no other.
+ */
+export function effectReach(effects: ReadonlyArray<EffectLike>): { x: number; y: number } {
+  let x = 0;
+  let y = 0;
+  let blurred = false;
+
+  const grow = (reach: number, dx: number, dy: number): void => {
+    x = Math.max(x, reach + Math.abs(dx));
+    y = Math.max(y, reach + Math.abs(dy));
+  };
+
+  for (const effect of effects) {
+    if (!effect.visible) {
+      continue;
+    }
+
+    if (effect.type === 'DROP_SHADOW') {
+      const shadow = effect as ShadowEffectLike;
+
+      grow(3 * stdDeviation(shadow.radius) + Math.max(shadow.spread ?? 0, 0), shadow.offset.x, shadow.offset.y);
+    } else if (effect.type === 'LAYER_BLUR' && !blurred) {
+      blurred = true;
+      grow(3 * stdDeviation((effect as BlurEffectLike).radius), 0, 0);
+    }
+  }
+
+  return { x, y };
+}
+
+/**
  * Builds the `<filter>` for a layer's effects, or null when none of them has
  * an SVG counterpart. The chain follows the one Figma writes: drop shadows
  * composite below the graphic, inner shadows on top of it, a layer blur over
@@ -105,16 +139,10 @@ export function effectsToFilter(
   }
 
   const primitives: INode[] = [];
-  let padX = 0;
-  let padY = 0;
+  const pad = effectReach(effects);
   let result = 0;
 
   const nextResult = (): string => `r${result++}`;
-
-  const grow = (reach: number, dx: number, dy: number): void => {
-    padX = Math.max(padX, reach + Math.abs(dx));
-    padY = Math.max(padY, reach + Math.abs(dy));
-  };
 
   /**
    * One shadow, as the chain of primitives Figma's own export writes. Both
@@ -127,10 +155,6 @@ export function effectsToFilter(
     const spread = shadow.spread ?? 0;
     const inner = shadow.type === 'INNER_SHADOW';
     const hardAlpha = nextResult();
-
-    if (!inner) {
-      grow(3 * stdDeviation(shadow.radius) + Math.max(spread, 0), shadow.offset.x, shadow.offset.y);
-    }
 
     primitives.push(
       element('feColorMatrix', { in: 'SourceAlpha', type: 'matrix', values: HARD_ALPHA, result: hardAlpha }),
@@ -186,7 +210,6 @@ export function effectsToFilter(
   }
 
   if (blur !== null) {
-    grow(3 * stdDeviation(blur.radius), 0, 0);
     primitives.push(
       element('feGaussianBlur', {
         in: above,
@@ -199,10 +222,10 @@ export function effectsToFilter(
   const attributes: Record<string, string> = { id, 'color-interpolation-filters': 'sRGB' };
 
   attributes.filterUnits = 'userSpaceOnUse';
-  attributes.x = formatNumber(box.x - padX);
-  attributes.y = formatNumber(box.y - padY);
-  attributes.width = formatNumber(Math.max(box.width + 2 * padX, MIN_REGION));
-  attributes.height = formatNumber(Math.max(box.height + 2 * padY, MIN_REGION));
+  attributes.x = formatNumber(box.x - pad.x);
+  attributes.y = formatNumber(box.y - pad.y);
+  attributes.width = formatNumber(Math.max(box.width + 2 * pad.x, MIN_REGION));
+  attributes.height = formatNumber(Math.max(box.height + 2 * pad.y, MIN_REGION));
 
   return element('filter', attributes, primitives);
 }

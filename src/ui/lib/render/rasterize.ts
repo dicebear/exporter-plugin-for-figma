@@ -1,9 +1,11 @@
+import { clamp } from '@shared/settings';
+
 /** Figma rejects images beyond this edge length. */
 export const MAX_IMAGE_SIZE = 4096;
 
 /** The resolution an image fill is rendered at for a node of the given size. */
 export function fillResolution(width: number, height: number): number {
-  return Math.min(2048, Math.max(128, Math.ceil(Math.max(width, height) * 2)));
+  return clamp(Math.ceil(Math.max(width, height) * 2), 128, 2048);
 }
 
 async function loadImage(svg: string): Promise<CanvasImageSource> {
@@ -47,7 +49,7 @@ function draw(canvas: OffscreenCanvas | HTMLCanvasElement, image: CanvasImageSou
  * width and height, which the renderer writes when it is given a size.
  */
 export async function svgToPng(svg: string, px: number): Promise<Uint8Array> {
-  const size = Math.min(MAX_IMAGE_SIZE, Math.max(1, Math.round(px)));
+  const size = clamp(Math.round(px), 1, MAX_IMAGE_SIZE);
   const image = await loadImage(svg);
   let blob: Blob | null;
 

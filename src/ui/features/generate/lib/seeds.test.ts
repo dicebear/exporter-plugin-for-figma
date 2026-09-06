@@ -22,4 +22,11 @@ describe('seeds', () => {
     ]);
     expect(resolveSeeds({ kind: 'layerNames' }, { count: 2, layerNames: ['Ada', ' '] })).toEqual(['Ada', 'Layer 2']);
   });
+
+  it('falls back to random seeds when inserting with layer names', () => {
+    expect(resolveSeeds({ kind: 'layerNames' }, { count: 3, layerNames: [], mode: 'insert' })).toEqual(
+      randomSeeds(0, 3),
+    );
+    expect(resolveSeeds({ kind: 'layerNames' }, { count: 1, layerNames: ['Ada'], mode: 'fill' })).toEqual(['Ada']);
+  });
 });

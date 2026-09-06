@@ -86,7 +86,9 @@ export function isDefaultSnapshot(state: GenerateState): boolean {
     state.seeds.kind === 'random' &&
     state.count === DEFAULT_COUNT &&
     Object.keys(state.overrides).length === 0 &&
-    state.layout === DEFAULT_LAYOUT &&
+    state.layout.size === DEFAULT_LAYOUT.size &&
+    state.layout.columns === DEFAULT_LAYOUT.columns &&
+    state.layout.gap === DEFAULT_LAYOUT.gap &&
     state.modeOverride === null
   );
 }

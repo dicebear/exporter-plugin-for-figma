@@ -1,7 +1,7 @@
 import { Avatar, Style } from '@dicebear/core';
 import { PREVIEW_SEED } from '@/lib/api';
 import { optionsFingerprint, type Overrides } from './avatarOptions';
-import { toDataUri } from './renderAvatar';
+import { boundedSet } from './renderAvatar';
 import type { StyleEntry } from './styleRegistry';
 
 /**
@@ -15,6 +15,7 @@ type Previews = {
   renders: Map<string, string>;
 };
 
+const RENDER_LIMIT = 300;
 const previews = new WeakMap<StyleEntry, Previews>();
 
 function previewsOf(entry: StyleEntry): Previews {
@@ -105,9 +106,5 @@ export function renderComponentVariant(
     [`${componentName}Variant`]: variant,
   };
 
-  const uri = toDataUri(new Avatar(style, options as never).toString());
-
-  renders.set(key, uri);
-
-  return uri;
+  return boundedSet(renders, key, new Avatar(style, options as never).toDataUri(), RENDER_LIMIT);
 }

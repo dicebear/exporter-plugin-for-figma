@@ -1,3 +1,4 @@
+import { sentenceCase } from 'change-case';
 import type { Descriptor, FieldDescriptor } from './descriptor';
 import type { StyleEntry } from './styleRegistry';
 
@@ -45,12 +46,7 @@ const HIDDEN = new Set([
 const HIDDEN_SUFFIXES = ['ColorFill', 'ColorFillStops', 'ColorAngle', 'ColorOrder'];
 
 export function humanize(name: string): string {
-  const spaced = name
-    .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
-    .replace(/-/g, ' ')
-    .toLowerCase();
-
-  return spaced.charAt(0).toUpperCase() + spaced.slice(1);
+  return sentenceCase(name);
 }
 
 function endsWithAny(name: string, suffixes: string[]): boolean {
@@ -62,6 +58,13 @@ export function groupOptions(entry: StyleEntry): OptionGroup[] {
   const descriptor: Descriptor = entry.descriptor;
   const components = [...entry.style.components().keys()];
   const colors = entry.style.colors();
+
+  /** The swatches of a color group, without the hash, empty when the style has no such group. */
+  const palette = (group: string): string[] =>
+    colors
+      .get(group)
+      ?.values()
+      .map((value) => value.replace(/^#/, '')) ?? [];
   const componentFields: OptionFieldSpec[] = [];
   const colorFields: OptionFieldSpec[] = [];
   const advanced: OptionFieldSpec[] = [];
@@ -77,7 +80,13 @@ export function groupOptions(entry: StyleEntry): OptionGroup[] {
     }
 
     if (name === 'backgroundColor' && field.type === 'color') {
-      colorFields.unshift({ name, label: 'Background', descriptor: field, kind: 'color', palette: [] });
+      colorFields.unshift({
+        name,
+        label: 'Background',
+        descriptor: field,
+        kind: 'color',
+        palette: palette('background'),
+      });
 
       continue;
     }
@@ -101,17 +110,7 @@ export function groupOptions(entry: StyleEntry): OptionGroup[] {
     if (name.endsWith('Color') && field.type === 'color') {
       const group = name.slice(0, -'Color'.length);
 
-      colorFields.push({
-        name,
-        label: humanize(group),
-        descriptor: field,
-        kind: 'color',
-        palette:
-          colors
-            .get(group)
-            ?.values()
-            .map((value) => value.replace(/^#/, '')) ?? [],
-      });
+      colorFields.push({ name, label: humanize(group), descriptor: field, kind: 'color', palette: palette(group) });
 
       continue;
     }

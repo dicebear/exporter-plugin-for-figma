@@ -1,4 +1,5 @@
 import { cleanSvg } from '@shared/cleanSvg';
+import { errorMessage } from '@shared/errors';
 import { toDataUri } from './render/renderAvatar';
 
 /** The hosted DiceBear API, which serves the collection the plugin offers. */
@@ -14,7 +15,7 @@ function timeoutSignal(): AbortSignal {
 }
 
 function describeFailure(name: string, error: unknown): Error {
-  const reason = error instanceof Error ? error.message : String(error);
+  const reason = errorMessage(error);
   const offline = typeof navigator !== 'undefined' && navigator.onLine === false;
 
   return new Error(

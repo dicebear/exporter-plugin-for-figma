@@ -27,9 +27,11 @@ export function NumberInput({ value, onCommit, min, max, nullable, ...props }: P
   }, [text]);
 
   const commit = () => {
-    if (nullable && draft.trim() === '') {
-      if (value !== null) {
+    if (draft.trim() === '') {
+      if (nullable && value !== null) {
         onCommit(null);
+      } else if (!nullable) {
+        setDraft(text);
       }
 
       return;

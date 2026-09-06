@@ -6,7 +6,6 @@ import { readPrefs, writePrefs } from './prefs';
 import { describeSelection } from './selection/describeSelection';
 import { collectAvatarRecords, type RecordCandidate } from './selection/collectAvatarRecords';
 import {
-  noteSelectionChange,
   onSelectionChange,
   selectionEventsSuppressed,
   suppressSelectionEvents,
@@ -57,15 +56,7 @@ function reportSelection(): void {
   }
 }
 
-onSelectionChange(reportSelection);
-
-figma.on('selectionchange', () => {
-  if (selectionEventsSuppressed()) {
-    noteSelectionChange();
-
-    return;
-  }
-
+function scheduleReport(): void {
   if (selectionTimer !== null) {
     clearTimeout(selectionTimer);
   }
@@ -74,6 +65,18 @@ figma.on('selectionchange', () => {
     selectionTimer = null;
     reportSelection();
   }, SELECTION_DEBOUNCE_MS);
+}
+
+// A release and the real event that trails it share the debounce, so they
+// arrive as one report.
+onSelectionChange(scheduleReport);
+
+figma.on('selectionchange', () => {
+  if (selectionEventsSuppressed()) {
+    return;
+  }
+
+  scheduleReport();
 });
 
 function getNormalizePrecision(): number {
@@ -117,9 +120,14 @@ onEvent('ui:ready', async () => {
   // for that tab, not for the default one.
   await prefsLoaded;
 
+  // A relaunch button belongs to the Generate tab, whatever tab was open last.
+  if (figma.command) {
+    mode = 'generate';
+  }
+
   postEvent({
     type: 'plugin:init',
-    prefs,
+    prefs: { ...prefs, mode },
     selection: describeSelection(mode),
     command: figma.command || null,
     relaunch: figma.command ? findRelaunchRecord() : null,
@@ -160,18 +168,49 @@ onEvent('style:refresh', () => {
   refreshStyle();
 });
 
-onEvent('settings:frame:set', (event) => {
-  setFrameSettings(getFrameSelection(), event.settings);
+/** The frame a settings change names, null when it is gone or no longer a style frame. */
+async function resolveSettingsFrame(frameId: string): Promise<FrameNode | null> {
+  const node = await figma.getNodeByIdAsync(frameId);
+
+  if (!node || node.type !== 'FRAME' || node.removed || node.width !== node.height) {
+    console.warn(`Dropped a settings change for frame ${frameId}, which is gone or not a square frame.`);
+
+    return null;
+  }
+
+  return node;
+}
+
+onEvent('settings:frame:set', async (event) => {
+  const frame = await resolveSettingsFrame(event.frameId);
+
+  if (!frame) {
+    return;
+  }
+
+  setFrameSettings(frame, event.settings);
   invalidateExportCache();
 });
 
-onEvent('settings:component:set', (event) => {
-  setComponentGroupSettings(getFrameSelection(), event.group, event.settings);
+onEvent('settings:component:set', async (event) => {
+  const frame = await resolveSettingsFrame(event.frameId);
+
+  if (!frame) {
+    return;
+  }
+
+  setComponentGroupSettings(frame, event.group, event.settings);
   invalidateExportCache();
 });
 
-onEvent('settings:color:set', (event) => {
-  setColorGroupSettings(getFrameSelection(), event.group, event.settings);
+onEvent('settings:color:set', async (event) => {
+  const frame = await resolveSettingsFrame(event.frameId);
+
+  if (!frame) {
+    return;
+  }
+
+  setColorGroupSettings(frame, event.group, event.settings);
   invalidateExportCache();
 });
 
@@ -257,7 +296,6 @@ onRequest('generate:end', async (params) => {
     return endJob(params);
   } finally {
     // The job selected what it made, which the release reports.
-    noteSelectionChange();
     releaseJob?.();
     releaseJob = null;
   }

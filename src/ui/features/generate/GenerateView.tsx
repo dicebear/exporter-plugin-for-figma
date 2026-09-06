@@ -18,6 +18,7 @@ import { TargetSection } from './components/TargetSection';
 import { loadCatalog } from './lib/catalogLoader';
 import { runGenerate } from './lib/runGenerate';
 import { randomSeeds } from './lib/seeds';
+import { usableTargets } from './lib/targets';
 import { ensureStyle } from '@/lib/styleSources';
 import { useSeeds, useStyleEntry, useTargetMode } from './lib/useGenerateContext';
 
@@ -49,7 +50,7 @@ function useRestoreStyle() {
       if (command === 'regenerate') {
         ensureStyle(key)
           .then((entry) => {
-            const targets = useAppStore.getState().selection.targets.filter((t) => !t.locked);
+            const targets = usableTargets(useAppStore.getState().selection.targets);
 
             useGenerateStore.getState().shuffle();
 

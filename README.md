@@ -1,7 +1,7 @@
 # DiceBear Studio
 
-A Figma plugin for [DiceBear](https://www.dicebear.com) avatars. It generates avatars into your designs and turns a
-Figma frame of components and color styles into a DiceBear avatar style, and back.
+A plugin for Figma that brings [DiceBear](https://www.dicebear.com) avatars into your designs. It generates avatars into
+your designs and turns a Figma frame of components and color styles into a DiceBear avatar style, and back.
 
 - **Generate.** Fill the selected layers with avatars, or insert a batch of new ones. Pick a style from the DiceBear
   collection or from a definition file you uploaded. Seeds come from a random draw, the layer names, a list, or a
@@ -25,8 +25,11 @@ Definitions you opened stay cached in Figma's plugin storage, so they render off
 
 ## Using the plugin
 
-The DiceBear docs have a walkthrough that covers how to set up the frame, name your components and color groups, and run
-the export: [Create an avatar style with Figma](https://www.dicebear.com/create-styles/with-figma/).
+The [DiceBear Studio](https://www.dicebear.com/integrations/figma/) page in the DiceBear docs is the overview: it covers
+the Generate and Inspect tabs and points to the two guides for the Style tab.
+
+The first guide covers how to set up the frame, name your components and color groups, and run the export:
+[Create an avatar style with Figma](https://www.dicebear.com/create-styles/with-figma/).
 
 The other direction has its own guide, from picking a definition file to exporting the style you made of it:
 [Edit an avatar style with Figma](https://www.dicebear.com/create-styles/edit-a-style/).

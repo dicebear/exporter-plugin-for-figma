@@ -8,6 +8,9 @@ const PERSISTED: (keyof GenerateState)[] = ['styleKey', 'seeds', 'count', 'overr
 
 let timer: ReturnType<typeof setTimeout> | null = null;
 
+/** The settings as last written or restored, so an unchanged snapshot is not written again. */
+let lastWritten: string | null = null;
+
 /** Puts what the document stored back into the store, if it stored anything. */
 export function restoreGenerateSettings(stored: unknown): boolean {
   const snapshot = parseSnapshot(stored);
@@ -17,6 +20,7 @@ export function restoreGenerateSettings(stored: unknown): boolean {
   }
 
   useGenerateStore.getState().restore(snapshot);
+  lastWritten = JSON.stringify(snapshotGenerate(useGenerateStore.getState()));
 
   return true;
 }
@@ -38,7 +42,16 @@ export function persistGenerateSettings(): () => void {
 
     timer = setTimeout(() => {
       timer = null;
-      postEvent({ type: 'file-settings:set', settings: snapshotGenerate(useGenerateStore.getState()) });
+
+      const settings = snapshotGenerate(useGenerateStore.getState());
+      const next = JSON.stringify(settings);
+
+      if (next === lastWritten) {
+        return;
+      }
+
+      lastWritten = next;
+      postEvent({ type: 'file-settings:set', settings });
     }, WRITE_DEBOUNCE_MS);
   });
 }

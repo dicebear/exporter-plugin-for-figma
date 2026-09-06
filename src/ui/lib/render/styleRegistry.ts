@@ -71,7 +71,7 @@ export function registerStyle(source: AvatarSource, definition: unknown, options
   const entry: StyleEntry = {
     key,
     source,
-    title: options.title ?? meta.source().name() ?? sourceTitle(source),
+    title: options.title ?? sourceTitle(source),
     style,
     descriptor: new OptionsDescriptor(style).toJSON(),
     license: { name: meta.license().name() ?? '', url: meta.license().url() ?? '' },

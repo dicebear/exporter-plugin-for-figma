@@ -57,7 +57,7 @@ async function loadStyle(key: StyleKey, refresh: boolean): Promise<StyleEntry> {
       }
 
       case 'library': {
-        const item = useGenerateStore.getState().library.items.find((i) => i.id === parsed.id);
+        const item = await libraryItem(parsed.id);
         const definition = await library.load(parsed.id);
 
         entry = registerStyle({ kind: 'library', id: parsed.id, title: item?.title ?? parsed.id }, definition, {
@@ -75,6 +75,25 @@ async function loadStyle(key: StyleKey, refresh: boolean): Promise<StyleEntry> {
 
     throw error;
   }
+}
+
+/**
+ * The library row of a style. A restored style asks before the gallery has
+ * listed the library, so the list is read into the store here when it is not
+ * there yet.
+ */
+async function libraryItem(id: string): Promise<LibraryItem | undefined> {
+  const known = useGenerateStore.getState().library.items.find((i) => i.id === id);
+
+  if (known) {
+    return known;
+  }
+
+  const items = await library.list();
+
+  useGenerateStore.getState().setLibrary({ items, status: 'ready' });
+
+  return items.find((i) => i.id === id);
 }
 
 /** Validates an uploaded file and puts it in the library. */

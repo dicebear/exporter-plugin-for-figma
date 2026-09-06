@@ -114,9 +114,10 @@ export type UiEvent =
   | { type: 'file-settings:set'; settings: unknown }
   | { type: 'progress:painted'; step: number }
   | { type: 'style:refresh' }
-  | { type: 'settings:frame:set'; settings: FrameSettings }
-  | { type: 'settings:component:set'; group: string; settings: ComponentGroupSettings }
-  | { type: 'settings:color:set'; group: string; settings: ColorGroupSettings };
+  /** Settings changes name the frame they belong to, so a late one cannot land on another selection. */
+  | { type: 'settings:frame:set'; frameId: string; settings: FrameSettings }
+  | { type: 'settings:component:set'; frameId: string; group: string; settings: ComponentGroupSettings }
+  | { type: 'settings:color:set'; frameId: string; group: string; settings: ColorGroupSettings };
 
 export type UiToPluginMessage = RequestMessage | UiEvent;
 

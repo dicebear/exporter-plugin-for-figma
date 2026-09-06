@@ -1,4 +1,5 @@
 import type { GenerateLayout } from '@shared/messages';
+import { clamp } from '@shared/settings';
 
 export type Point = { x: number; y: number };
 
@@ -20,7 +21,7 @@ export function layoutGrid(count: number, layout: GenerateLayout, origin: Point)
 
 /** The size of the whole grid, for centring it. */
 export function gridSize(count: number, layout: GenerateLayout): { width: number; height: number } {
-  const columns = Math.max(1, Math.min(count, Math.floor(layout.columns)));
+  const columns = clamp(Math.floor(layout.columns), 1, count);
   const rows = Math.ceil(count / columns);
   const pitch = layout.size + layout.gap;
 

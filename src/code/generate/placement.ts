@@ -19,11 +19,15 @@ export function resolvePlacement(
   if (anchor === 'selection' && bounds) {
     const first = selection[0];
     const parent = first && first.parent && first.parent.type === 'SECTION' ? first.parent : figma.currentPage;
+    const origin = { x: bounds.x, y: bounds.y + bounds.height + layout.gap };
 
-    return {
-      origin: { x: bounds.x, y: bounds.y + bounds.height + layout.gap },
-      parent,
-    };
+    // Children of a section are positioned relative to it, and sections never rotate.
+    if (parent.type === 'SECTION') {
+      origin.x -= parent.absoluteTransform[0][2];
+      origin.y -= parent.absoluteTransform[1][2];
+    }
+
+    return { origin, parent };
   }
 
   const size = gridSize(count, layout);

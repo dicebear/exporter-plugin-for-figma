@@ -58,4 +58,10 @@ describe('codeSnippet', () => {
     expect(code).toContain("import definition from './Mine.json' with { type: 'json' };");
     expect(code).toContain('new Style(definition)');
   });
+
+  it('escapes quotes and backslashes in the library file name', () => {
+    const code = codeSnippet({ ...record, source: { kind: 'library', id: 'x', title: "Ann's \\ set" } });
+
+    expect(code).toContain("import definition from './Ann\\'s \\\\ set.json' with { type: 'json' };");
+  });
 });

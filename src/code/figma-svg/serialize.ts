@@ -2,7 +2,7 @@ import { stringify, type INode } from 'svgson';
 
 import { blendModeStyle } from './blend';
 import { element } from './element';
-import { effectsToFilter, type FilterBox } from './effects';
+import { effectReach, effectsToFilter, type FilterBox } from './effects';
 import { planMaskedSiblings, type MaskPlanItem } from './masks';
 import { IDENTITY, apply, fromTransform, isIdentity, isTranslation, toAttribute, type Matrix } from './matrix';
 import { formatNumber } from './numbers';
@@ -318,7 +318,7 @@ function alignedPrimitive(
  * the half of the stroke band that the move took from it.
  */
 function coversBelow(paint: ChannelPaint): boolean {
-  return paint.opacity === undefined && !paint.translucent && !paint.value.startsWith('url(');
+  return paint.opacity === undefined && !paint.translucent;
 }
 
 /**
@@ -661,6 +661,11 @@ function mapBox(matrix: Matrix, box: FilterBox): FilterBox {
   return { x, y, width: Math.max(...xs) - x, height: Math.max(...ys) - y };
 }
 
+/** A box grown by a reach on every side. */
+function growBox(box: FilterBox, reach: { x: number; y: number }): FilterBox {
+  return { x: box.x - reach.x, y: box.y - reach.y, width: box.width + 2 * reach.x, height: box.height + 2 * reach.y };
+}
+
 function unionBox(boxes: FilterBox[]): FilterBox {
   const x = Math.min(...boxes.map((box) => box.x));
   const y = Math.min(...boxes.map((box) => box.y));
@@ -673,8 +678,9 @@ function unionBox(boxes: FilterBox[]): FilterBox {
 /**
  * The rectangle a layer paints, in the coordinates its elements are written
  * in. A shape is its box plus the stroke around it. A container is its own
- * box joined with the boxes of its visible children, each mapped by the
- * child's transform, so children outside the layout count too. A group has
+ * box joined with the boxes of its visible children, each grown by the
+ * reach of the child's own effects and mapped by the child's transform, so
+ * children outside the layout and their shadows count too. A group has
  * no box of its own: its children are placed in the parent's coordinates,
  * and so is the group's filter.
  *
@@ -697,7 +703,7 @@ function paintedBox(ctx: Context, node: SceneNode): FilterBox {
 
       const matrix = child.type === 'GROUP' ? IDENTITY : fromTransform(child.relativeTransform);
 
-      boxes.push(mapBox(matrix, paintedBox(ctx, child)));
+      boxes.push(mapBox(matrix, growBox(paintedBox(ctx, child), effectReach('effects' in child ? child.effects : []))));
     }
   }
 
@@ -903,7 +909,12 @@ function createContext(options: SerializeOptions): Context {
         // A paint blends on its own, apart from the layer's blend mode.
         const style = blendModeStyle(paint.blendMode ?? 'NORMAL', warn);
 
-        result.push({ value: resolved.value, opacity: resolved.opacity, ...(style !== undefined ? { style } : {}) });
+        result.push({
+          value: resolved.value,
+          opacity: resolved.opacity,
+          ...(resolved.def ? { translucent: true } : {}),
+          ...(style !== undefined ? { style } : {}),
+        });
       }
 
       return result;

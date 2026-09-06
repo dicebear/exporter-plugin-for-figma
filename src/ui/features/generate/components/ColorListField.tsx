@@ -19,8 +19,11 @@ type Props = {
  */
 const HEX = /^[0-9a-f]{6}$/i;
 
+/** A transparent background, as the hex with alpha the renderer accepts. */
+const TRANSPARENT = '00000000';
+
 export function ColorListField({ palette, selected, allowTransparent, onChange }: Props) {
-  const custom = selected.filter((value) => !palette.includes(value) && value !== 'transparent');
+  const custom = selected.filter((value) => !palette.includes(value) && value !== TRANSPARENT);
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState('4f46e5');
   const valid = HEX.test(draft);
@@ -48,9 +51,9 @@ export function ColorListField({ palette, selected, allowTransparent, onChange }
           title="transparent"
           className={cn(
             'size-5 rounded-md border bg-[linear-gradient(45deg,#ccc_25%,transparent_25%,transparent_75%,#ccc_75%),linear-gradient(45deg,#ccc_25%,transparent_25%,transparent_75%,#ccc_75%)] bg-[length:6px_6px] bg-[position:0_0,3px_3px]',
-            selected.includes('transparent') && ring,
+            selected.includes(TRANSPARENT) && ring,
           )}
-          onClick={() => toggle('transparent')}
+          onClick={() => toggle(TRANSPARENT)}
         />
       )}
       {[...palette, ...custom].map((value) => (

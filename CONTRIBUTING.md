@@ -61,12 +61,12 @@ src/
 │   ├── selection/    # Describes the selection for the window: fill targets, avatar records
 │   ├── settings/     # Reads/writes plugin data on the frame
 │   └── utils/
-└── ui/          # React app shown in the Figma plugin window
+└── ui/          # React app shown in the plugin window
     ├── components/   # Shared components, `ui/` holds the shadcn/ui sources
     ├── features/     # One folder per tab: generate, inspect, style
     ├── lib/          # Bridge, API client, catalog cache, rendering
     └── store/        # zustand stores
-public/manifest.json  # Figma plugin manifest
+public/manifest.json  # plugin manifest
 ```
 
 The plugin has two entry points, each built by Vite into `dist/`:
@@ -75,8 +75,8 @@ The plugin has two entry points, each built by Vite into `dist/`:
   [shadcn/ui](https://ui.shadcn.com) components on Radix primitives, styled with Tailwind CSS and mapped onto Figma's
   theme variables so the window follows the light and dark theme. State lives in zustand stores. Avatars are rendered
   here with `@dicebear/core`, as SVG for previews and inserts, rasterised to PNG for image fills.
-- **Sandbox** (`src/code/`): the Figma plugin script (`src/code/index.ts` → `dist/code.js`) with access to the Figma
-  API. It never parses a definition, it applies what the window sends.
+- **Sandbox** (`src/code/`): the plugin script (`src/code/index.ts` → `dist/code.js`) with access to the Figma API. It
+  never parses a definition, it applies what the window sends.
 
 The two sides exchange the messages declared in `src/shared/messages.ts`. A request carries a `requestId` and gets one
 reply, an event is fire and forget. Both bundles compile against that file, so a message can only be sent in the shape

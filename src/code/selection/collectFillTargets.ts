@@ -32,8 +32,8 @@ export type FillCandidate = {
   width: number;
   height: number;
   locked: boolean;
-  /** The fillable descendants, for a group or section. */
-  findAllWithCriteria?(criteria: { types: string[] }): FillCandidate[];
+  /** The direct children, for a group or section. */
+  children?: readonly FillCandidate[];
 };
 
 function toTarget(node: FillCandidate): FillTarget {
@@ -42,8 +42,10 @@ function toTarget(node: FillCandidate): FillTarget {
 
 /**
  * The fillable nodes of a selection. A group or section contributes the
- * fillable nodes inside it, every other node only itself. Locked nodes are
- * listed, the apply step skips them and says so.
+ * fillable nodes directly inside it, looking through nested groups and
+ * sections but never into a fillable node, so a frame counts as one target
+ * rather than as every shape it holds. Every other node contributes only
+ * itself. Locked nodes are listed, the apply step skips them and says so.
  */
 export function collectFillTargets(selection: readonly FillCandidate[]): FillTarget[] {
   const targets: FillTarget[] = [];
@@ -58,15 +60,18 @@ export function collectFillTargets(selection: readonly FillCandidate[]): FillTar
     targets.push(toTarget(node));
   };
 
-  for (const node of selection) {
+  const visit = (node: FillCandidate) => {
     if (FILLABLE.has(node.type)) {
       add(node);
-    } else if (FLATTENED_TYPES.has(node.type) && node.findAllWithCriteria) {
-      // Figma answers a type query from its index, faster than a predicate walk.
-      for (const child of node.findAllWithCriteria({ types: [...FILLABLE_TYPES] })) {
-        add(child);
+    } else if (FLATTENED_TYPES.has(node.type) && node.children) {
+      for (const child of node.children) {
+        visit(child);
       }
     }
+  };
+
+  for (const node of selection) {
+    visit(node);
   }
 
   return targets;

@@ -1,5 +1,5 @@
+import { styleTitleFromName } from '@shared/styleTitle';
 import { THUMBNAIL_SEEDS } from '@shared/thumbnailSeeds';
-import { expandHex } from './serializeDefinition';
 import { loadFirstFont } from '../utils/loadFirstFont';
 import { tick } from '@shared/tick';
 import { componentTransform, multiply, Picks } from './componentTransform';
@@ -56,10 +56,20 @@ function pickHex(picks: Picks, group: string): string | null {
 
 /**
  * A hex value the way the resolver spells it, without the hash. A style name
- * keeps the definition's short form, the resolver expands it.
+ * keeps the definition's short form, the resolver expands it. The alpha
+ * channel stays, it tells two palette entries of one color apart.
  */
 function normalizeHex(hex: string): string {
-  return (expandHex(hex) ?? `#${hex.replace(/^#/, '').toLowerCase()}`).slice(1);
+  const value = hex.toLowerCase().replace(/^#/, '');
+
+  if (value.length === 3 || value.length === 4) {
+    return value
+      .split('')
+      .map((digit) => digit + digit)
+      .join('');
+  }
+
+  return value;
 }
 
 /**
@@ -390,7 +400,7 @@ function indexVariants(componentsByGroup: Map<string, ComponentNode[]>): Map<str
  * Figma files and registers it as the file thumbnail.
  */
 export async function createThumbnail(page: PageNode, options: ThumbnailOptions): Promise<void> {
-  const title = options.title.charAt(0).toUpperCase() + options.title.slice(1);
+  const title = styleTitleFromName(options.title);
 
   const frame = figma.createFrame();
 
