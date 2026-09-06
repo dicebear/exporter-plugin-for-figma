@@ -42,6 +42,7 @@ The plugin then shows up under **Plugins → Development → DiceBear Studio**.
 | `npm run type-check` | Runs `tsc -b` over the UI, sandbox and config projects                     |
 | `npm test`           | Runs the unit tests with Vitest                                            |
 | `npm run analyze`    | Builds the UI with a bundle report in `dist/stats.html`                    |
+| `npm run notices`    | Collects the license notices of the shipped packages for the About dialog  |
 
 While `npm run dev` is running, re-run the plugin in Figma after each change (right-click the plugin → **Run**) to pick
 up the latest build.
@@ -64,6 +65,7 @@ src/
 └── ui/          # React app shown in the plugin window
     ├── components/   # Shared components, `ui/` holds the shadcn/ui sources
     ├── features/     # One folder per tab: generate, inspect, style
+    ├── generated/    # Third-party license notices, written by `npm run notices`
     ├── lib/          # Bridge, API client, catalog cache, rendering
     └── store/        # zustand stores
 public/manifest.json  # plugin manifest

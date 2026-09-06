@@ -10,12 +10,13 @@
     "dev": "run-p dev:ui dev:code",
     "dev:ui": "vite build --watch",
     "dev:code": "vite build --config vite.config.code.ts --watch",
-    "build": "run-s type-check build-ui build-code",
+    "build": "run-s notices type-check build-ui build-code",
     "build-ui": "vite build",
     "build-code": "vite build --config vite.config.code.ts",
     "analyze": "vite build --mode analyze",
     "type-check": "tsc -b",
-    "test": "vitest run"
+    "test": "vitest run",
+    "notices": "node scripts/third-party-notices.mjs"
   },
   "dependencies": {
     "@dicebear/core": "^11.0.0-rc.1",

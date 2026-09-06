@@ -1,8 +1,10 @@
-import { BookOpen, Code, PenTool, Sparkles } from 'lucide-react';
+import { useState } from 'react';
+import { BookOpen, Code, Info, PenTool, Sparkles } from 'lucide-react';
 import type { Mode } from '@shared/messages';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 import { useAppStore } from '@/store';
+import { AboutDialog } from './AboutDialog';
 
 const ITEMS: { mode: Mode; label: string; icon: typeof Sparkles }[] = [
   { mode: 'generate', label: 'Generate', icon: Sparkles },
@@ -10,10 +12,14 @@ const ITEMS: { mode: Mode; label: string; icon: typeof Sparkles }[] = [
   { mode: 'style', label: 'Style', icon: PenTool },
 ];
 
+const RAIL_ACTION =
+  'flex size-10 items-center justify-center rounded-lg text-icon-secondary hover:bg-accent hover:text-foreground';
+
 /** The workspace switch, laid out like Figma's own rail: icon above label. */
 export function Rail() {
   const mode = useAppStore((state) => state.mode);
   const setMode = useAppStore((state) => state.setMode);
+  const [aboutOpen, setAboutOpen] = useState(false);
 
   return (
     <nav className="flex w-16 shrink-0 flex-col items-center border-r py-3">
@@ -52,13 +58,27 @@ export function Rail() {
             target="_blank"
             rel="noopener"
             aria-label="Open the guide"
-            className="flex size-10 items-center justify-center rounded-lg text-icon-secondary hover:bg-accent hover:text-foreground"
+            className={RAIL_ACTION}
           >
             <BookOpen className="size-5" strokeWidth={1.75} />
           </a>
         </TooltipTrigger>
         <TooltipContent side="right">Open the guide</TooltipContent>
       </Tooltip>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <button
+            type="button"
+            aria-label="About this plugin"
+            className={RAIL_ACTION}
+            onClick={() => setAboutOpen(true)}
+          >
+            <Info className="size-5" strokeWidth={1.75} />
+          </button>
+        </TooltipTrigger>
+        <TooltipContent side="right">About, licenses and privacy</TooltipContent>
+      </Tooltip>
+      <AboutDialog open={aboutOpen} onOpenChange={setAboutOpen} />
     </nav>
   );
 }

@@ -21,6 +21,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
   options that differ from the style's defaults, the `api.dicebear.com` URL as SVG, PNG, JPG or WebP, and the JavaScript
   that renders the same avatar with `@dicebear/core`. Each of them has a copy button. Selecting a frame or group lists
   every avatar inside it.
+- An About dialog behind the info icon in the rail, with the plugin's version and license, the license notices of every
+  package it ships, and links to the documentation, the privacy policy and the legal notice.
 - The plugin window follows Figma's light and dark theme and can be resized from the corner. Its size and the last tab
   are remembered.
 - Export for DiceBear 11.x, the line that plays animations.
