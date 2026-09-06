@@ -15,10 +15,12 @@ import type { ChannelPaint, PaintChannel, SerializeContext, SerializeHooks, Seri
  * Geometry comes from `fillGeometry` and `strokeGeometry`, which already
  * account for corner smoothing, caps, joins and dashes. An inside or outside
  * stroke needs one more step: Figma draws it with twice the weight and masks
- * it by the fill, and `strokeGeometry` is that doubled outline before the
- * mask. Paints, effects, masks, blend modes and transforms are translated one
- * to one. Three hooks let a caller take over a layer, a bound style, or the
- * finished elements of a layer, see {@link SerializeHooks}.
+ * it by the fill. The export does the same with a stroke along the geometry
+ * and a clip or mask that references it, and falls back to `strokeGeometry`,
+ * the doubled outline before the mask, where the attribute form cannot
+ * express the stroke. Paints, effects, masks, blend modes and transforms are
+ * translated one to one. Three hooks let a caller take over a layer, a bound
+ * style, or the finished elements of a layer, see {@link SerializeHooks}.
  *
  * The root is exported by its contents: its own fill and transform stay out,
  * like `exportAsync` with `contentsOnly`.
@@ -206,10 +208,12 @@ function placePrimitive(primitive: INode, matrix: Matrix): void {
 /**
  * Whether the stroke can travel as `stroke` attributes on the geometry. Figma
  * draws a center stroke the way SVG does, an inside or outside stroke and the
- * arrow caps have no attribute form and use the outlined `strokeGeometry`.
+ * arrow caps have no attribute form and use the outlined `strokeGeometry`. A
+ * boolean operation strokes its combined outline, the same paths its fill is
+ * drawn from.
  */
 function strokeAsAttributes(ctx: Context, node: SceneNode & GeometryMixin, strokes: ChannelPaint[]): boolean {
-  if (node.type === 'TEXT' || node.type === 'BOOLEAN_OPERATION' || strokes.length !== 1) {
+  if (node.type === 'TEXT' || strokes.length !== 1) {
     return false;
   }
 
@@ -374,7 +378,144 @@ function alignOutlinedStroke(
 }
 
 /**
- * The centerline a stroke runs along, in the layer's own coordinates. A line
+ * Whether an inside or outside stroke can run along the layer's geometry as
+ * `stroke` attributes. Figma draws such a stroke with twice the weight and
+ * cuts it to the side of the fill it belongs on, and SVG can do the same with
+ * a clip or a mask, at the cost of the geometry once instead of its outline.
+ * The doubled stroke needs the caps and the single paint the attribute form
+ * covers, and a fill outline to cut by, which a primitive always has. A
+ * boolean operation qualifies: its fill outline is the combined result, the
+ * same paths its fill is drawn from, and Figma strokes that result.
+ */
+function strokeAlongGeometry(
+  ctx: Context,
+  node: SceneNode & GeometryMixin,
+  strokes: ChannelPaint[],
+  outline: VectorPaths | null,
+): boolean {
+  if (node.type === 'TEXT' || strokes.length !== 1) {
+    return false;
+  }
+
+  if (node.strokeAlign === 'CENTER' || node.strokeWeight === ctx.host.mixed) {
+    return false;
+  }
+
+  const cap = node.strokeCap;
+
+  return (cap === 'NONE' || cap === 'ROUND' || cap === 'SQUARE') && (outline === null || outline.length > 0);
+}
+
+/** Path data without its closing command, which a fill implies anyway. */
+function openData(data: string): string {
+  return data.replace(/\s*[zZ]\s*$/, '').trim();
+}
+
+/**
+ * Whether a centerline and a fill outline run along the same points. A
+ * closed vector takes its fill outline as centerline, so the two differ by
+ * the closing command at most, which stays out of the comparison. The
+ * centerline is the one to draw then: its closing strokes the last edge, the
+ * fill closes on its own.
+ */
+function samePaths(line: VectorPaths, outline: VectorPaths): boolean {
+  return line.length === outline.length && line.every((path, i) => openData(path.data) === openData(outline[i].data));
+}
+
+/** The fill outline drawn along the centerline's data, with the outline's winding rule. */
+function alongLine(line: VectorPaths, outline: VectorPaths): VectorPaths {
+  return outline.map((path, i) => ({ windingRule: path.windingRule, data: line[i].data }));
+}
+
+/**
+ * The elements of a shape whose inside or outside stroke runs along its
+ * geometry. The geometry goes to the defs once, and `<use>` elements draw the
+ * fills and the stroke from it, with a clip (inside) or a mask (outside) that
+ * references the same geometry. A vector whose centerline differs from its
+ * fill outline, an open path for example, strokes the centerline itself.
+ */
+function alignedStrokeElements(
+  ctx: Context,
+  node: SceneNode & GeometryMixin,
+  fills: ChannelPaint[],
+  stroke: ChannelPaint,
+  primitive: Primitive | null,
+  outline: VectorPaths,
+  line: VectorPaths,
+): INode[] {
+  const id = ctx.nextId('shape');
+  const shared = primitive !== null || samePaths(line, outline);
+  const paths = shared && primitive === null ? alongLine(line, outline) : outline;
+  const geometry =
+    primitive !== null
+      ? element(primitive.name, { id, ...primitive.attributes })
+      : paths.length === 1
+        ? pathElement(paths[0], { id })
+        : element(
+            'g',
+            { id },
+            paths.map((path) => pathElement(path, {})),
+          );
+  const reference = (attributes: Record<string, string> = {}): INode =>
+    element('use', { href: `#${id}`, ...attributes });
+  const attributes = strokeAttributes(node, stroke);
+
+  attributes['stroke-width'] = formatNumber((node.strokeWeight as number) * 2);
+  ctx.defs.push(geometry);
+
+  const elements = fills.map((fill) => reference(paintAttributes('fill', fill)));
+  const strokeElements = (): INode[] =>
+    shared
+      ? [reference({ fill: 'none', ...attributes })]
+      : line.map((path) => pathElement(path, { fill: 'none', ...attributes }));
+
+  if (node.strokeAlign === 'INSIDE') {
+    const clipId = ctx.nextId('clip');
+
+    ctx.defs.push(element('clipPath', { id: clipId }, [reference()]));
+
+    // The clip cuts the stroke to the fill outline and leaves a fill on the
+    // same element as it is, so a single fill takes the stroke itself.
+    if (shared && elements.length === 1 && fills.length === 1 && shareElement(fills[0], stroke)) {
+      Object.assign(elements[0].attributes, attributes, { 'clip-path': `url(#${clipId})` });
+
+      return elements;
+    }
+
+    if (shared) {
+      elements.push(reference({ fill: 'none', ...attributes, 'clip-path': `url(#${clipId})` }));
+    } else {
+      elements.push(element('g', { 'clip-path': `url(#${clipId})` }, strokeElements()));
+    }
+
+    return elements;
+  }
+
+  // A luminance mask: white where the stroke may show, the fill cut out in
+  // black. The white covers the stroke's reach, with the miter joins in mind.
+  const maskId = ctx.nextId('mask');
+  const margin = strokeWeightOf(ctx, node) * 4;
+
+  ctx.defs.push(
+    element('mask', { id: maskId }, [
+      element('rect', {
+        x: formatNumber(-margin),
+        y: formatNumber(-margin),
+        width: formatNumber(node.width + 2 * margin),
+        height: formatNumber(node.height + 2 * margin),
+        fill: '#ffffff',
+      }),
+      reference({ fill: '#000000' }),
+    ]),
+  );
+  elements.push(element('g', { mask: `url(#${maskId})` }, strokeElements()));
+
+  return elements;
+}
+
+/**
+ * The centerline a stroke runs along, in the layer's own coordinates. A
+ * closed vector follows its fill outline, an open one its vector path. A line
  * layer sits at the bottom edge of its stroke: the stroke rises above the
  * layer's y, and a round or square cap stays inside the layer's width
  * instead of reaching past the end points. Figma's export writes it the same
@@ -382,7 +523,21 @@ function alignOutlinedStroke(
  */
 function centerline(node: SceneNode & GeometryMixin, fillGeometry: VectorPaths): VectorPaths {
   if (node.type === 'VECTOR') {
-    return node.vectorPaths;
+    const paths = node.vectorPaths;
+    const closed = paths.length > 0 && paths.every((path) => /[zZ]\s*$/.test(path.data));
+
+    // The vector paths leave the corner rounding out, the fill outline has
+    // it. A closed path runs along its fill outline, closed again so the
+    // stroke draws the last edge, as long as the outline is that path and
+    // not the regions a self-crossing path splits into.
+    if (closed && fillGeometry.length === paths.length) {
+      return fillGeometry.map((path) => ({
+        windingRule: path.windingRule,
+        data: /[zZ]\s*$/.test(path.data) ? path.data : `${path.data.trim()}Z`,
+      }));
+    }
+
+    return paths;
   }
 
   if (node.type === 'LINE') {
@@ -445,6 +600,21 @@ async function shapeElements(
     missing('fill', 'fill geometry');
   }
 
+  // An inside or outside stroke runs along the geometry where it can. A
+  // primitive takes the moved-primitive form first, the geometry form covers
+  // the rest of them, a dashed stroke for example.
+  if (primitive !== null) {
+    if (alignedPrimitive(ctx, node, primitive, strokes) === null && strokeAlongGeometry(ctx, node, strokes, null)) {
+      return alignedStrokeElements(ctx, node, fills, strokes[0], primitive, [], []);
+    }
+  } else if (strokeAlongGeometry(ctx, node, strokes, outline())) {
+    const line = centerline(node, outline());
+
+    if (line.length > 0) {
+      return alignedStrokeElements(ctx, node, fills, strokes[0], null, outline(), line);
+    }
+  }
+
   for (const fill of fills) {
     elements.push(...draw(paintAttributes('fill', fill), outline));
   }
@@ -463,12 +633,18 @@ async function shapeElements(
 
     // A single filled element that follows the same outline takes the stroke
     // itself. A vector's fill geometry can differ from its centerline (an
-    // open path fills nothing), so those get a stroke element of their own.
+    // open path fills nothing), so a vector shares only where the two run
+    // along the same points, and draws the centerline then, which closes.
     if (
       elements.length === 1 &&
       shareElement(fills[0], strokes[0]) &&
-      (primitive !== null || (node.type !== 'VECTOR' && outline().length === 1 && line.length === 1))
+      (primitive !== null ||
+        (outline().length === 1 && line.length === 1 && (node.type !== 'VECTOR' || samePaths(line, outline()))))
     ) {
+      if (primitive === null && node.type === 'VECTOR') {
+        elements[0].attributes.d = line[0].data;
+      }
+
       Object.assign(elements[0].attributes, attributes);
 
       return elements;

@@ -211,9 +211,9 @@ describe('serializeTree', () => {
     );
   });
 
-  it('moves an outlined stroke on a primitive by a transform, not by position attributes', async () => {
-    // A dashed inside stroke stays outlined, its dashes would shift on a
-    // moved primitive. The outline is clipped to the fill like any other.
+  it('runs a dashed inside stroke on a primitive along the primitive itself, doubled and clipped', async () => {
+    // The dashes would shift on a moved primitive, so the stroke runs along
+    // the primitive with twice the weight and the clip cuts the outer half.
     const ring = shape('ELLIPSE', {
       relativeTransform: translate(40, 60),
       strokes: [solid(0, 0, 0)],
@@ -226,10 +226,142 @@ describe('serializeTree', () => {
     });
 
     expect(await svg(container('FRAME', [ring]))).toBe(
-      '<g clip-path="url(#clip0)" transform="translate(40 60)">' +
-        '<path d="M0 5A5 5 0 1 0 10 5A5 5 0 1 0 0 5ZM1 5A4 4 0 1 0 9 5A4 4 0 1 0 1 5Z" fill="#000000" fill-rule="evenodd" clip-rule="evenodd"/>' +
-        '</g>' +
-        '<defs><clipPath id="clip0"><path d="M0 5A5 5 0 1 0 10 5A5 5 0 1 0 0 5Z"/></clipPath></defs>',
+      '<use href="#shape0" fill="none" stroke="#000000" stroke-width="2" stroke-dasharray="2 2" clip-path="url(#clip0)" transform="translate(40 60)"/>' +
+        '<defs><circle id="shape0" cx="5" cy="5" r="5"/><clipPath id="clip0"><use href="#shape0"/></clipPath></defs>',
+    );
+  });
+
+  it('runs an inside stroke along the fill outline from the defs, on the fill element', async () => {
+    const blob = shape('VECTOR', {
+      fills: [solid(0, 0, 0)],
+      strokes: [solid(1, 1, 1)],
+      strokeAlign: 'INSIDE',
+      strokeWeight: 2,
+      strokeJoin: 'ROUND',
+      vectorPaths: [{ windingRule: 'NONZERO', data: 'M0 0H10V10H0Z' }],
+      strokeGeometry: [{ windingRule: 'EVENODD', data: 'M-2 -2H12V12H-2ZM2 2H8V8H2Z' }],
+    });
+
+    expect(await svg(container('FRAME', [blob]))).toBe(
+      '<use href="#shape0" fill="#000000" stroke="#ffffff" stroke-width="4" stroke-linejoin="round" clip-path="url(#clip0)"/>' +
+        '<defs><path d="M0 0H10V10H0Z" id="shape0"/><clipPath id="clip0"><use href="#shape0"/></clipPath></defs>',
+    );
+  });
+
+  it('shares the fill outline with a centerline that only adds the closing command', async () => {
+    // Figma closes the vector path and leaves the fill outline open. One
+    // element draws both, along the closed path.
+    const blob = shape('VECTOR', {
+      fills: [solid(0, 0, 0)],
+      strokes: [solid(1, 1, 1)],
+      strokeAlign: 'INSIDE',
+      strokeWeight: 2,
+      fillGeometry: [{ windingRule: 'EVENODD', data: 'M0 0H10V10H0' }],
+      vectorPaths: [{ windingRule: 'NONZERO', data: 'M0 0H10V10H0 Z' }],
+      strokeGeometry: [{ windingRule: 'EVENODD', data: 'M0 0' }],
+    });
+    // The vector path starts elsewhere and lacks the corner rounding the
+    // fill outline carries, so the closed path follows the outline.
+    const centered = shape('VECTOR', {
+      fills: [solid(0, 0, 0)],
+      strokes: [solid(1, 1, 1)],
+      strokeWeight: 2,
+      fillGeometry: [{ windingRule: 'NONZERO', data: 'M1 0H9Q10 0 10 1V10H0V1Q0 0 1 0' }],
+      vectorPaths: [{ windingRule: 'NONZERO', data: 'M10 0V10H0V0Z' }],
+    });
+
+    expect(await svg(container('FRAME', [blob]))).toBe(
+      '<use href="#shape0" fill="#000000" stroke="#ffffff" stroke-width="4" clip-path="url(#clip0)"/>' +
+        '<defs><path d="M0 0H10V10H0Z" id="shape0" fill-rule="evenodd" clip-rule="evenodd"/>' +
+        '<clipPath id="clip0"><use href="#shape0"/></clipPath></defs>',
+    );
+    expect(await svg(container('FRAME', [centered]))).toBe(
+      '<path d="M1 0H9Q10 0 10 1V10H0V1Q0 0 1 0Z" fill="#000000" stroke="#ffffff" stroke-width="2"/>',
+    );
+  });
+
+  it('puts the center stroke of a boolean operation on its combined outline', async () => {
+    const union = shape('BOOLEAN_OPERATION', {
+      fills: [solid(0, 0, 0)],
+      strokes: [solid(1, 1, 1)],
+      strokeWeight: 2,
+      fillGeometry: [{ windingRule: 'EVENODD', data: 'M0 0H10V10H0ZM4 4H6V6H4Z' }],
+      strokeGeometry: [{ windingRule: 'EVENODD', data: 'M0 0' }],
+    });
+
+    expect(await svg(container('FRAME', [union]))).toBe(
+      '<path d="M0 0H10V10H0ZM4 4H6V6H4Z" fill="#000000" fill-rule="evenodd" clip-rule="evenodd" stroke="#ffffff" stroke-width="2"/>',
+    );
+  });
+
+  it('runs the inside stroke of a boolean operation along its combined outline', async () => {
+    const union = shape('BOOLEAN_OPERATION', {
+      fills: [solid(0, 0, 0)],
+      strokes: [solid(1, 1, 1)],
+      strokeAlign: 'INSIDE',
+      strokeWeight: 2,
+      fillGeometry: [{ windingRule: 'EVENODD', data: 'M0 0H10V10H0ZM4 4H6V6H4Z' }],
+      strokeGeometry: [{ windingRule: 'EVENODD', data: 'M0 0' }],
+    });
+
+    expect(await svg(container('FRAME', [union]))).toBe(
+      '<use href="#shape0" fill="#000000" stroke="#ffffff" stroke-width="4" clip-path="url(#clip0)"/>' +
+        '<defs><path d="M0 0H10V10H0ZM4 4H6V6H4Z" id="shape0" fill-rule="evenodd" clip-rule="evenodd"/>' +
+        '<clipPath id="clip0"><use href="#shape0"/></clipPath></defs>',
+    );
+  });
+
+  it('keeps a blended inside stroke on an element of its own', async () => {
+    const blob = shape('VECTOR', {
+      fills: [solid(0, 0, 0)],
+      strokes: [{ ...solid(1, 1, 1), blendMode: 'MULTIPLY' }],
+      strokeAlign: 'INSIDE',
+      strokeWeight: 2,
+      vectorPaths: [{ windingRule: 'NONZERO', data: 'M0 0H10V10H0Z' }],
+      strokeGeometry: [{ windingRule: 'EVENODD', data: 'M0 0' }],
+    });
+
+    expect(await svg(container('FRAME', [blob]))).toBe(
+      '<use href="#shape0" fill="#000000"/>' +
+        '<use href="#shape0" fill="none" stroke="#ffffff" style="mix-blend-mode:multiply" stroke-width="4" clip-path="url(#clip0)"/>' +
+        '<defs><path d="M0 0H10V10H0Z" id="shape0"/><clipPath id="clip0"><use href="#shape0"/></clipPath></defs>',
+    );
+  });
+
+  it('masks an outside stroke that runs along the fill outline by the outline itself', async () => {
+    const blob = shape('VECTOR', {
+      fills: [solid(0, 0, 0)],
+      strokes: [solid(1, 1, 1)],
+      strokeAlign: 'OUTSIDE',
+      strokeWeight: 1,
+      vectorPaths: [{ windingRule: 'NONZERO', data: 'M0 0H10V10H0Z' }],
+      strokeGeometry: [{ windingRule: 'EVENODD', data: 'M0 0' }],
+    });
+
+    expect(await svg(container('FRAME', [blob]))).toBe(
+      '<use href="#shape0" fill="#000000"/>' +
+        '<g mask="url(#mask0)"><use href="#shape0" fill="none" stroke="#ffffff" stroke-width="2"/></g>' +
+        '<defs><path d="M0 0H10V10H0Z" id="shape0"/>' +
+        '<mask id="mask0"><rect x="-4" y="-4" width="18" height="18" fill="#ffffff"/><use href="#shape0" fill="#000000"/></mask></defs>',
+    );
+  });
+
+  it('strokes the centerline of an open vector and clips it to the fill outline', async () => {
+    // The fill closes the open path, the stroke does not follow the closing
+    // edge, so the centerline is stroked itself.
+    const arc = shape('VECTOR', {
+      fills: [solid(0, 0, 0)],
+      strokes: [solid(1, 1, 1)],
+      strokeAlign: 'INSIDE',
+      strokeWeight: 2,
+      vectorPaths: [{ windingRule: 'NONE', data: 'M0 0H10V10' }],
+      strokeGeometry: [{ windingRule: 'EVENODD', data: 'M0 0' }],
+    });
+
+    expect(await svg(container('FRAME', [arc]))).toBe(
+      '<use href="#shape0" fill="#000000"/>' +
+        '<g clip-path="url(#clip0)"><path d="M0 0H10V10" fill="none" stroke="#ffffff" stroke-width="4"/></g>' +
+        '<defs><path d="M0 0H10V10H0Z" id="shape0"/><clipPath id="clip0"><use href="#shape0"/></clipPath></defs>',
     );
   });
 

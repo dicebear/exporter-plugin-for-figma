@@ -65,11 +65,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
   frame with a palette fill keep their own colors instead of inheriting the palette, and nested groups keep their
   structure with transforms that svgo folds into the paths. Frames still do not clip, the avatar clips at the canvas.
   Angular and diamond gradients, background blur and image fills have no SVG counterpart and are reported as warnings.
-  An inside or outside stroke runs along a primitive moved by half its weight, the way Figma's export wrote it, or is
-  cut to the side of the fill it belongs on, since Figma outlines such a stroke with twice its weight. An instance that
-  masks its siblings keeps its component reference inside the `<mask>`, so the masked layers no longer drop out of the
-  export. A mask keeps its opacity and effects, a mask at zero opacity hides its layers and is reported, like an empty
-  one.
+  An inside or outside stroke runs along a primitive moved by half its weight, the way Figma's export wrote it, or as a
+  stroke of twice the weight along the geometry, cut to the side of the fill it belongs on by a clip or a mask that
+  references the same geometry. The geometry sits in the defs once and `<use>` elements draw the fill and the stroke
+  from it, so such a layer costs its outline once instead of three times. Arrow caps and text keep the outlined stroke
+  Figma computes. A closed vector strokes its fill outline, corner rounding included, which the vector path leaves out,
+  and draws fill and stroke on one element, as a primitive and a boolean operation do. An instance that masks its
+  siblings keeps its component reference inside the `<mask>`, so the masked layers no longer drop out of the export. A
+  mask keeps its opacity and effects, a mask at zero opacity hides its layers and is reported, like an empty one.
 - A line layer draws its stroke above its y position and keeps round and square caps inside its width, as Figma does,
   instead of half a stroke lower and a cap longer.
 - A fill or stroke with a blend mode of its own keeps it as `mix-blend-mode` on its element. The export dropped it and
